@@ -5,4 +5,8 @@ public class AssertionUtils {
         if(!rule)
             throw new RuntimeException(message);
     }
+
+    public static boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
 }
