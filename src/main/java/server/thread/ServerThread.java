@@ -1,5 +1,6 @@
 package server.thread;
 
+import com.google.gson.Gson;
 import server.model.enums.Mode;
 import ui.Message;
 import util.AssertionUtils;
@@ -12,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerThread extends Thread {
+    private static final Gson gson = new Gson();
+
     @Override
     public void run() {
         try(ServerSocket serverSocket = init()) {
