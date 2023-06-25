@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
 import model.Operation;
-import model.put.PutRequest;
-import model.put.PutResponse;
+import model.request.PutRequest;
+import model.response.PutResponse;
 import model.repository.TimestampRepository;
 import ui.Message;
 
@@ -23,6 +23,7 @@ public class ClientImpl {
     private static final Gson gson = new Gson();
     private final String host;
     private final int port;
+    private static final String KEY_ = "";
     private final TimestampRepository timestampRepository;
 
     public ClientImpl() {

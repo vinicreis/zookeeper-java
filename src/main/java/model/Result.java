@@ -4,6 +4,4 @@ public enum Result {
     OK,
     ERROR,
     EXCEPTION;
-
-
 }

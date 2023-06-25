@@ -1,5 +1,7 @@
 package model;
 
 public interface Response {
-    public Operation getOperation();
+    Operation getOperation();
+    Result getResult();
+    String getMessage();
 }

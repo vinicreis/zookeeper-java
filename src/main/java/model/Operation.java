@@ -1,7 +1,10 @@
 package model;
 
 public enum Operation {
-    PUT("PUT");
+    JOIN("JOIN"),
+    PUT("PUT"),
+    GET("GET"),
+    REPLICATE("REPLICATE");
 
     private final String code;
 
@@ -11,5 +14,16 @@ public enum Operation {
 
     public String getCode() {
         return code;
+    }
+
+    public static Operation fromCode(String code) {
+        switch (code) {
+            case "JOIN": return JOIN;
+            case "PUT": return PUT;
+            case "GET": return GET;
+            case "REPLICATE": return REPLICATE;
+            default:
+                throw new IllegalArgumentException(String.format("Operation of code %s not found!", code));
+        }
     }
 }

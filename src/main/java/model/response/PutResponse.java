@@ -1,4 +1,4 @@
-package model.put;
+package model.response;
 
 import com.google.gson.annotations.SerializedName;
 import model.Operation;
