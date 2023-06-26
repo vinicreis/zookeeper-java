@@ -5,18 +5,18 @@ import model.Operation;
 import model.Response;
 import model.Result;
 
-public class ReplicationResponse implements Response {
-    @SerializedName("result") private final Result result;
-    @SerializedName("message") private final String message;
+public class ReplicationResponse extends Response {
 
     public ReplicationResponse() {
-        this.result = Result.OK;
-        this.message = null;
+        super();
     }
 
-    public ReplicationResponse(Result result) {
-        this.result = result;
-        this.message = null;
+    public ReplicationResponse(String message) {
+        super(message);
+    }
+
+    public ReplicationResponse(Exception e) {
+        super(e);
     }
 
     public ReplicationResponse(Result result, String message) {
@@ -27,15 +27,5 @@ public class ReplicationResponse implements Response {
     @Override
     public Operation getOperation() {
         return Operation.REPLICATE;
-    }
-
-    @Override
-    public Result getResult() {
-        return result;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
     }
 }

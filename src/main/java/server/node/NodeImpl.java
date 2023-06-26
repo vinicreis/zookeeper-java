@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
 import model.type.Pair;
-import server.ServerImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
