@@ -9,28 +9,25 @@ public class PutResponse extends Response {
     @SerializedName("timestamp")
     private final Long timestamp;
 
-    public PutResponse(Long timestamp) {
-        super();
+    private PutResponse(Result result, String message, Long timestamp) {
+        super(result, message);
 
         this.timestamp = timestamp;
     }
 
-    public PutResponse(String message) {
-        super(message);
+    public static class Builder extends AbstractBuilder<PutResponse> {
+        private Long timestamp = null;
 
-        this.timestamp = null;
-    }
+        public Builder timestamp(Long timestamp) {
+            this.timestamp = timestamp;
 
-    public PutResponse(Exception e) {
-        super(e);
+            return this;
+        }
 
-        this.timestamp = null;
-    }
-
-    public PutResponse(Result result, String message, Long timestamp) {
-        setResult(result);
-        setMessage(message);
-        this.timestamp = timestamp;
+        @Override
+        public PutResponse build() {
+            return new PutResponse(result, message, timestamp);
+        }
     }
 
     @Override

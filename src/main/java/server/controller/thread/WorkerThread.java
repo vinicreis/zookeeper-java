@@ -3,12 +3,12 @@ package server.controller.thread;
 import com.google.gson.Gson;
 import model.Operation;
 import model.Response;
+import model.request.GetRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
-import model.response.JoinResponse;
 import server.Server;
-import server.controller.ControllerImpl;
+import server.controller.Controller;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -36,8 +36,12 @@ public class WorkerThread extends Thread {
 
             switch (operation) {
                 case JOIN:
-                    response = server.join(gson.fromJson(request, JoinRequest.class));
-                    break;
+                    if (server instanceof Controller) {
+                        response = ((Controller)server).join(gson.fromJson(request, JoinRequest.class));
+                        break;
+                    }
+
+                    throw new IllegalStateException("Nodes can not handle join requests");
                 case PUT:
                     response = server.put(gson.fromJson(request, PutRequest.class));
                     break;
@@ -45,9 +49,8 @@ public class WorkerThread extends Thread {
                     response = server.replicate(gson.fromJson(request, ReplicationRequest.class));
                     break;
                 case GET:
-                    // TODO: Not implemented yet
-                    throw new RuntimeException("Not implemented yet");
-//                    break;
+                    response = server.get(gson.fromJson(request, GetRequest.class));
+                    break;
                 default:
                     throw new IllegalStateException("Operation unknown!");
             }

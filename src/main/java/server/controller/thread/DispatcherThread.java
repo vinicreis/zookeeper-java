@@ -15,15 +15,22 @@ public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private final Log log = new ConsoleLog(TAG);
     private final Server server;
+    private final ServerSocket serverSocket;
     private boolean running = true;
 
     public DispatcherThread(Server server) throws IOException {
         this.server = server;
+        this.serverSocket = new ServerSocket(server.getPort());
+    }
+
+    public DispatcherThread(Server server, ServerSocket serverSocket) {
+        this.server = server;
+        this.serverSocket = serverSocket;
     }
 
     @Override
     public void run() {
-        try(ServerSocket serverSocket = new ServerSocket(server.getPort())) {
+        try {
             while (running) {
                 log.d("Listening for operation requests...");
                 final Socket socket = serverSocket.accept();
@@ -35,9 +42,9 @@ public class DispatcherThread extends Thread {
 
                 new WorkerThread(server, socket, Operation.fromCode(operationCode), message).start();
             }
+
+            serverSocket.close();
         } catch (Exception e) {
-            // TODO: Do something...
-        } finally {
             // TODO: Do something...
         }
     }

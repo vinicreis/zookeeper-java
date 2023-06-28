@@ -1,5 +1,7 @@
 package model.repository;
 
+import model.exception.OutdatedEntryException;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +13,7 @@ public class KeyValueRepository {
         this.timestampRepository = timestampRepository;
     }
 
-    private static class Entry {
+    public static class Entry {
         private final String value;
         private final Long timestamp;
 
@@ -33,5 +35,15 @@ public class KeyValueRepository {
         data.putIfAbsent(key, new Entry(value, timestampRepository.getCurrent()));
 
         return data.get(key).getTimestamp();
+    }
+
+    public Entry find(String key, Long timestamp) throws OutdatedEntryException {
+        final Entry result = data.getOrDefault(key, null);
+
+        if(result == null) return null;
+        if(result.getTimestamp() < timestamp)
+            throw new OutdatedEntryException(key, timestampRepository.getCurrent());
+
+        return data.get(key);
     }
 }

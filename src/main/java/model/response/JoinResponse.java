@@ -21,8 +21,4 @@ public class JoinResponse extends Response {
     public Operation getOperation() {
         return Operation.JOIN;
     }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 }

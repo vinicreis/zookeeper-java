@@ -31,6 +31,7 @@ public abstract class Response {
 
         public AbstractBuilder<T> exception(Exception e) {
             // TODO: Do something with the exception???
+            this.result = Result.EXCEPTION;
             this.message = "Falha ao processar operação";
 
             return this;

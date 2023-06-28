@@ -6,22 +6,15 @@ import model.Response;
 import model.Result;
 
 public class ReplicationResponse extends Response {
-
-    public ReplicationResponse() {
-        super();
+    private ReplicationResponse(Result result, String message) {
+        super(result, message);
     }
 
-    public ReplicationResponse(String message) {
-        super(message);
-    }
-
-    public ReplicationResponse(Exception e) {
-        super(e);
-    }
-
-    public ReplicationResponse(Result result, String message) {
-        this.result = result;
-        this.message = message;
+    public static class Builder extends AbstractBuilder<ReplicationResponse> {
+        @Override
+        public ReplicationResponse build() {
+            return new ReplicationResponse(result, message);
+        }
     }
 
     @Override

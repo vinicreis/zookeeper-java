@@ -53,8 +53,4 @@ public class GetResponse extends Response {
     public Long getTimestamp() {
         return timestamp;
     }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 }
