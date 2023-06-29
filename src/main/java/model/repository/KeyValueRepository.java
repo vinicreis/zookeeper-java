@@ -32,9 +32,15 @@ public class KeyValueRepository {
     }
 
     public Long upsert(String key, String value) {
-        data.putIfAbsent(key, new Entry(value, timestampRepository.getCurrent()));
+        final Long timestamp = timestampRepository.getCurrent();
 
-        return data.get(key).getTimestamp();
+        data.putIfAbsent(key, new Entry(value, timestamp));
+
+        return timestamp;
+    }
+
+    public void update(String key, String value, Long timestamp) {
+        data.putIfAbsent(key, new Entry(value, timestamp));
     }
 
     public Entry find(String key, Long timestamp) throws OutdatedEntryException {

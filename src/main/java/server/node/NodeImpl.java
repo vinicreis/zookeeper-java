@@ -94,18 +94,48 @@ public class NodeImpl implements Node {
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            log.d("Sending PUT request to Controller...");
+            writer.write(Operation.PUT.getCode());
+            writer.write(request.toJson());
 
-        } catch (UnknownHostException e) {
-            // TODO: Do something...
-            throw new RuntimeException(e);
+            log.d("Waiting PUT response from Controller...");
+            final String jsonResponse = reader.readLine();
+            log.d(String.format("PUT response received: %s", jsonResponse));
+
+            final PutResponse controllerResponse = gson.fromJson(jsonResponse, PutResponse.class);
+
+            if (controllerResponse.getResult() != Result.OK) {
+                return new PutResponse.Builder()
+                        .result(Result.ERROR)
+                        .message(controllerResponse.getMessage())
+                        .build();
+            }
+
+            log.d("Saving data locally after successful PUT request on Controller...");
+            final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
+
+            return new PutResponse.Builder()
+                    .timestamp(timestamp)
+                    .result(Result.OK)
+                    .build();
         } catch (IOException e) {
             // TODO: Do something...
+            log.e("Failed to process PUT request", e);
+            return new PutResponse.Builder().exception(e).build();
         }
     }
 
     @Override
     public ReplicationResponse replicate(ReplicationRequest request) {
-        return null;
+        try {
+            log.d("Saving replicated data locally...");
+            keyValueRepository.update(request.getKey(), request.getValue(), request.getTimestamp());
+
+            return new ReplicationResponse.Builder().result(Result.OK).build();
+        } catch (Exception e) {
+            log.e("Failed to process REPLICATE request");
+            return new ReplicationResponse.Builder().exception(e).build();
+        }
     }
 
     @Override
