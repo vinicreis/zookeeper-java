@@ -1,18 +1,26 @@
 package model;
 
+import java.util.Arrays;
+
 public enum Operation {
-    JOIN("JOIN"),
-    PUT("PUT"),
-    GET("GET"),
-    REPLICATE("REPLICATE");
+    JOIN("JOIN", 0),
+    GET("GET", 1),
+    PUT("PUT", 2),
+    REPLICATE("REPLICATE", 3);
 
-    private final String code;
+    private final String name;
+    private final int code;
 
-    Operation(String code) {
+    Operation(String name, int code) {
+        this.name = name;
         this.code = code;
     }
 
-    public String getCode() {
+    public String getName() {
+        return name;
+    }
+
+    public int getCode() {
         return code;
     }
 
@@ -25,5 +33,12 @@ public enum Operation {
             default:
                 throw new IllegalArgumentException(String.format("Operation of code %s not found!", code));
         }
+    }
+
+    public static String printClient() {
+        return String.join(
+                " | ",
+                (String[])Arrays.stream(new Operation[] { GET, PUT }).map((o) -> String.format("%s [%d]", o.getName(),o.getCode())).toArray()
+        );
     }
 }

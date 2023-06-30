@@ -20,6 +20,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import static util.AssertionUtils.handleException;
+
 public class NodeImpl implements Node {
     private static final String TAG = "NodeImpl";
     private static final Log log = new ConsoleLog(TAG);
@@ -37,7 +39,7 @@ public class NodeImpl implements Node {
         this.controllerHost = controllerHost;
         this.controllerPort = controllerPort;
         this.serverSocket = new ServerSocket(port);
-        this.dispatcher = new DispatcherThread(this);
+        this.dispatcher = new DispatcherThread(this, this.serverSocket);
         this.timestampRepository = new TimestampRepository();
         this.keyValueRepository = new KeyValueRepository(this.timestampRepository);
     }
@@ -74,7 +76,7 @@ public class NodeImpl implements Node {
     @Override
     public void join() {
         try(Socket socket = new Socket(controllerHost, controllerPort)) {
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            final PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             final JoinRequest request = new JoinRequest(
                     serverSocket.getInetAddress().getHostAddress(),
@@ -82,8 +84,10 @@ public class NodeImpl implements Node {
             );
 
             log.d("Sending JOIN message...");
-            writer.write(Operation.JOIN.getCode());
+            writer.write(Operation.JOIN.getName());
+            writer.flush();
             writer.write(gson.toJson(request));
+            writer.flush();
 
             log.d("Waiting for JOIN response...");
             final String jsonResponse = reader.readLine();
@@ -95,11 +99,8 @@ public class NodeImpl implements Node {
             }
 
             log.d("Node successfully joined!");
-        } catch (UnknownHostException e) {
-            // TODO: Do something...
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            // TODO: Do something...
+            handleException(TAG, "Failed to process JOIN operation", e);
         }
     }
 
@@ -110,7 +111,7 @@ public class NodeImpl implements Node {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             log.d("Sending PUT request to Controller...");
-            writer.write(Operation.PUT.getCode());
+            writer.write(Operation.PUT.getName());
             writer.write(request.toJson());
 
             log.d("Waiting PUT response from Controller...");
@@ -134,8 +135,7 @@ public class NodeImpl implements Node {
                     .result(Result.OK)
                     .build();
         } catch (IOException e) {
-            // TODO: Do something...
-            log.e("Failed to process PUT request", e);
+            handleException(TAG, "Failed to process PUT operation", e);
             return new PutResponse.Builder().exception(e).build();
         }
     }
@@ -148,7 +148,7 @@ public class NodeImpl implements Node {
 
             return new ReplicationResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {
-            log.e("Failed to process REPLICATE request");
+            handleException(TAG, "Failed to process REPLICATE operation", e);
             return new ReplicationResponse.Builder().exception(e).build();
         }
     }

@@ -34,7 +34,7 @@ public class KeyValueRepository {
     public Long upsert(String key, String value) {
         final Long timestamp = timestampRepository.getCurrent();
 
-        data.putIfAbsent(key, new Entry(value, timestamp));
+        data.put(key, new Entry(value, timestamp));
 
         return timestamp;
     }

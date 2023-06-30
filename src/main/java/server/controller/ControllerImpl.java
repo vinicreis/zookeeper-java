@@ -20,6 +20,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import static util.AssertionUtils.handleException;
+
 public class ControllerImpl implements Controller {
     private static final String TAG = "ControllerImpl";
     private static final Log log = new ConsoleLog(TAG);
@@ -82,7 +84,7 @@ public class ControllerImpl implements Controller {
             timestampRepository.start();
             dispatcher.start();
         } catch (Exception e) {
-            // TODO: Do something
+            handleException(TAG, "Failed to start Controller!", e);
         }
     }
 
@@ -92,8 +94,7 @@ public class ControllerImpl implements Controller {
             timestampRepository.stop();
             dispatcher.interrupt();
         } catch (Exception e) {
-            // TODO: Do something
-            throw new RuntimeException(e);
+            handleException(TAG, "Failed while stopping Controller", e);
         }
     }
 
@@ -112,7 +113,7 @@ public class ControllerImpl implements Controller {
 
             return new JoinResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {
-            // TODO: Do something...
+            handleException(TAG, "Failed to process JOIN operation", e);
             return new JoinResponse.Builder().exception(e).build();
         }
     }
@@ -143,7 +144,7 @@ public class ControllerImpl implements Controller {
                     )
                     .build();
         } catch (Exception e) {
-            // TODO: Do something
+            handleException(TAG, "Failed to process PUT operation", e);
             return new PutResponse.Builder().exception(e).build();
         }
     }
@@ -161,7 +162,7 @@ public class ControllerImpl implements Controller {
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-                    writer.write(Operation.REPLICATE.getCode());
+                    writer.write(Operation.REPLICATE.getName());
                     writer.write(request.toJson());
 
                     final String jsonResult = reader.readLine();
@@ -170,7 +171,7 @@ public class ControllerImpl implements Controller {
                     if(response.getResult() != Result.OK) portsWithError.add(i);
                 } catch (IOException e) {
                     portsWithError.add(i);
-                    // TODO: Do something
+                    handleException(TAG, String.format("Failed during REPLICATE to node %s:%d", node.getHost(), node.getPort()), e);
                 }
             }
 
@@ -187,7 +188,7 @@ public class ControllerImpl implements Controller {
                         ).build();
             }
         } catch (Exception e) {
-            // TODO: Do something
+            handleException(TAG, "Failed to process REPLICATE operation", e);
             return new ReplicationResponse.Builder().exception(e).build();
         }
     }

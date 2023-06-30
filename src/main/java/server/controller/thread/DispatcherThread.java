@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static util.AssertionUtils.handleException;
+
 public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private final Log log = new ConsoleLog(TAG);
@@ -45,7 +47,7 @@ public class DispatcherThread extends Thread {
 
             serverSocket.close();
         } catch (Exception e) {
-            // TODO: Do something...
+            handleException(TAG, "Failed during dispatch execution", e);
         }
     }
 
@@ -55,7 +57,7 @@ public class DispatcherThread extends Thread {
             super.interrupt();
             running = false;
         } catch (Exception e) {
-            // TODO: Do something...
+            handleException(TAG, "Failed while interrupting dispatcher!", e);
         }
     }
 }

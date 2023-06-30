@@ -11,6 +11,8 @@ import model.response.GetResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
 
+import static util.AssertionUtils.handleException;
+
 public interface Server {
     int getPort();
     TimestampRepository getTimestampRepository();
@@ -33,14 +35,14 @@ public interface Server {
                     .timestamp(entry.getTimestamp())
                     .build();
         } catch (OutdatedEntryException e) {
-            // TODO: Do something
+            handleException("Server", String.format("Data with key %s is outdated", request.getKey()), e);
             return new GetResponse.Builder()
                     .result(Result.ERROR)
                     .message("Try other server or try later")
                     .exception(e)
                     .build();
         } catch (Exception e) {
-            // TODO: Do something
+            handleException("Server", "Failed to process JOIN operation", e);
             return new GetResponse.Builder().exception(e).build();
         }
     }

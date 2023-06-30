@@ -14,7 +14,10 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import static util.AssertionUtils.handleException;
+
 public class WorkerThread extends Thread {
+    private static final String TAG = "WorkerThread";
     private static final Gson gson = new Gson();
     private final Server server;
     private final Socket socket;
@@ -58,7 +61,7 @@ public class WorkerThread extends Thread {
             writer.write(gson.toJson(response));
             socket.close();
         } catch (Exception e) {
-            // TODO: Do something...
+            handleException(TAG, "Failed during worker execution", e);
         }
     }
 }
