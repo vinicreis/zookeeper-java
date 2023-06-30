@@ -5,14 +5,11 @@ import log.ConsoleLog;
 import log.Log;
 import model.Operation;
 import model.Result;
-import model.exception.OutdatedEntryException;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
-import model.request.GetRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
-import model.response.GetResponse;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
@@ -67,6 +64,16 @@ public class ControllerImpl implements Controller {
     @Override
     public int getPort() {
         return port;
+    }
+
+    @Override
+    public TimestampRepository getTimestampRepository() {
+        return timestampRepository;
+    }
+
+    @Override
+    public KeyValueRepository getKeyValueRepository() {
+        return keyValueRepository;
     }
 
     @Override
@@ -182,33 +189,6 @@ public class ControllerImpl implements Controller {
         } catch (Exception e) {
             // TODO: Do something
             return new ReplicationResponse.Builder().exception(e).build();
-        }
-    }
-
-    @Override
-    public GetResponse get(GetRequest request) {
-        try {
-            final KeyValueRepository.Entry entry = keyValueRepository.find(request.getKey(), request.getTimestamp());
-
-            if (entry == null) return new GetResponse.Builder()
-                    .result(Result.ERROR)
-                    .message(String.format("Key %s not found...", request.getKey()))
-                    .build();
-
-            return new GetResponse.Builder()
-                    .value(entry.getValue())
-                    .timestamp(entry.getTimestamp())
-                    .build();
-        } catch (OutdatedEntryException e) {
-            // TODO: Do something
-            return new GetResponse.Builder()
-                    .result(Result.ERROR)
-                    .message("Try other server our try later")
-                    .exception(e)
-                    .build();
-        } catch (Exception e) {
-            // TODO: Do something
-            return new GetResponse.Builder().exception(e).build();
         }
     }
 }

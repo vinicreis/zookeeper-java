@@ -7,11 +7,9 @@ import model.Operation;
 import model.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
-import model.request.GetRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
-import model.response.GetResponse;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
@@ -45,9 +43,26 @@ public class NodeImpl implements Node {
     }
 
     @Override
+    public int getPort() {
+        return port;
+    }
+
+    @Override
+    public TimestampRepository getTimestampRepository() {
+        return timestampRepository;
+    }
+
+    @Override
+    public KeyValueRepository getKeyValueRepository() {
+        return keyValueRepository;
+    }
+
+    @Override
     public void start() {
         timestampRepository.start();
         dispatcher.start();
+
+        join();
     }
 
     @Override
@@ -136,15 +151,5 @@ public class NodeImpl implements Node {
             log.e("Failed to process REPLICATE request");
             return new ReplicationResponse.Builder().exception(e).build();
         }
-    }
-
-    @Override
-    public GetResponse get(GetRequest request) {
-        return null;
-    }
-
-    @Override
-    public int getPort() {
-        return port;
     }
 }

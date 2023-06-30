@@ -18,9 +18,11 @@ public interface Controller extends Server {
 
             controller.start();
 
-            // TODO: Find a way to finish it gracefully}
-        } catch (Exception e) {
+            System.console().readLine("Pressione qualquer tecla para finalizar...");
 
+            controller.stop();
+        } catch (Exception e) {
+            // TODO: Do something...
         }
     }
 }
