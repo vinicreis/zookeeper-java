@@ -12,6 +12,7 @@ import model.response.PutResponse;
 import model.response.ReplicationResponse;
 
 import static util.AssertionUtils.handleException;
+import static util.IOUtil.*;
 
 public interface Server {
     int getPort();
@@ -22,28 +23,53 @@ public interface Server {
     PutResponse put(PutRequest request);
     ReplicationResponse replicate(ReplicationRequest request);
     default GetResponse get(GetRequest request) {
+        GetResponse response;
+        KeyValueRepository.Entry entry = null;
+
         try {
-            final KeyValueRepository.Entry entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
+            entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
 
-            if (entry == null) return new GetResponse.Builder()
-                    .result(Result.ERROR)
-                    .message(String.format("Key %s not found...", request.getKey()))
-                    .build();
-
-            return new GetResponse.Builder()
-                    .value(entry.getValue())
-                    .timestamp(entry.getTimestamp())
-                    .build();
+            if (entry == null) {
+                response = new GetResponse.Builder()
+                        .result(Result.NOT_FOUND)
+                        .message(String.format("Valor com a chave %s não encontrado", request.getKey()))
+                        .build();
+            } else {
+                response = new GetResponse.Builder()
+                        .value(entry.getValue())
+                        .timestamp(entry.getTimestamp())
+                        .result(Result.OK)
+                        .build();
+            }
         } catch (OutdatedEntryException e) {
             handleException("Server", String.format("Data with key %s is outdated", request.getKey()), e);
-            return new GetResponse.Builder()
-                    .result(Result.ERROR)
+
+            response = new GetResponse.Builder()
+                    .result(Result.TRY_OTHER)
                     .message("Try other server or try later")
                     .exception(e)
                     .build();
         } catch (Exception e) {
             handleException("Server", "Failed to process JOIN operation", e);
-            return new GetResponse.Builder().exception(e).build();
+
+            response = new GetResponse.Builder().exception(e).build();
         }
+
+        printf(
+                "Cliente %s:%d GET key: %s ts: %d. Meu ts é %d, portanto devolvendo ",
+                request.getHost(),
+                request.getPort(),
+                request.getKey(),
+                request.getTimestamp(),
+                getTimestampRepository().getCurrent()
+        );
+
+        if(entry != null) {
+            print(entry.getValue());
+        } else {
+            print(response.getResult().toString());
+        }
+
+        return response;
     }
 }

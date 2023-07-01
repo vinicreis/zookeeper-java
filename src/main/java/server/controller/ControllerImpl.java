@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static util.AssertionUtils.handleException;
+import static util.IOUtil.printfLn;
 
 public class ControllerImpl implements Controller {
     private static final String TAG = "ControllerImpl";
@@ -32,12 +33,14 @@ public class ControllerImpl implements Controller {
     private final List<Node> nodes;
     private final int port;
 
-    public ControllerImpl(int port) throws IOException {
+    public ControllerImpl(int port, boolean debug) throws IOException {
         this.port = port;
         this.nodes = new ArrayList<>();
         this.dispatcher = new DispatcherThread(this);
         this.timestampRepository = new TimestampRepository();
         this.keyValueRepository = new KeyValueRepository(this.timestampRepository);
+
+        log.setDebug(debug);
     }
 
     private static class Node {
@@ -122,9 +125,19 @@ public class ControllerImpl implements Controller {
     @Override
     public PutResponse put(PutRequest request) {
         try {
+            printfLn(
+                    "Cliente %s:%d PUT key: %s value: $s",
+                    request.getHost(),
+                    request.getPort(),
+                    request.getKey(),
+                    request.getValue()
+            );
+
             final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
             final ReplicationResponse replicationResponse = replicate(
                     new ReplicationRequest(
+                            request.getHost(),
+                            request.getPort(),
                             request.getKey(),
                             request.getValue(),
                             timestamp
@@ -191,6 +204,14 @@ public class ControllerImpl implements Controller {
             }
 
             if (portsWithError.isEmpty()) {
+                printfLn(
+                        "Enviando PUT_OK ao Cliente %s:%d da key: %s ts: %d",
+                        request.getHost(),
+                        request.getPort(),
+                        request.getKey(),
+                        request.getTimestamp()
+                );
+
                 return new ReplicationResponse.Builder().result(Result.OK).build();
             } else {
                 return new ReplicationResponse.Builder()

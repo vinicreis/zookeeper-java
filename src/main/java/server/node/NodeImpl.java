@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import static util.AssertionUtils.handleException;
+import static util.IOUtil.printfLn;
 
 public class NodeImpl implements Node {
     private static final String TAG = "NodeImpl";
@@ -33,7 +34,7 @@ public class NodeImpl implements Node {
     private final int controllerPort;
     private final int port;
 
-    public NodeImpl(int port, String controllerHost, int controllerPort) throws IOException {
+    public NodeImpl(int port, String controllerHost, int controllerPort, boolean debug) throws IOException {
         this.port = port;
         this.controllerHost = controllerHost;
         this.controllerPort = controllerPort;
@@ -41,6 +42,8 @@ public class NodeImpl implements Node {
         this.dispatcher = new DispatcherThread(this, this.serverSocket);
         this.timestampRepository = new TimestampRepository();
         this.keyValueRepository = new KeyValueRepository(this.timestampRepository);
+
+        log.setDebug(debug);
     }
 
     @Override
@@ -108,6 +111,14 @@ public class NodeImpl implements Node {
     @Override
     public PutResponse put(PutRequest request) {
         try(Socket socket = new Socket(controllerHost, controllerPort)) {
+            printfLn(
+                    "Encaminhando %s:%d PUT key: %s value: $s",
+                    request.getHost(),
+                    request.getPort(),
+                    request.getKey(),
+                    request.getValue()
+            );
+
             final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
             final DataInputStream reader = new DataInputStream(socket.getInputStream());
 
@@ -144,6 +155,13 @@ public class NodeImpl implements Node {
     @Override
     public ReplicationResponse replicate(ReplicationRequest request) {
         try {
+            printfLn(
+                    "REPLICATION key: %s value: %s ts: %d",
+                    request.getKey(),
+                    request.getValue(),
+                    request.getTimestamp()
+            );
+
             log.d("Saving replicated data locally...");
             keyValueRepository.update(request.getKey(), request.getValue(), request.getTimestamp());
 

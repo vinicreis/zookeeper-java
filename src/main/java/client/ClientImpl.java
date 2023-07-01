@@ -30,12 +30,14 @@ public class ClientImpl implements Client {
     private final int port;
     private final TimestampRepository timestampRepository;
 
-    public ClientImpl(int port, String host, String serverHost, List<Integer> serverPorts){
+    public ClientImpl(int port, String host, String serverHost, List<Integer> serverPorts, boolean debug){
         this.port = port;
         this.host = host;
         this.serverHost = serverHost;
         this.serverPorts = serverPorts;
         this.timestampRepository = new TimestampRepository();
+
+        log.setDebug(debug);
     }
 
     @Override
@@ -56,7 +58,12 @@ public class ClientImpl implements Client {
             final String key = read("Digite a chave a ser lida");
             final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
             final DataInputStream reader = new DataInputStream(socket.getInputStream());
-            final GetRequest request = new GetRequest(key, timestampRepository.getCurrent());
+            final GetRequest request = new GetRequest(
+                    serverHost,
+                    socket.getPort(),
+                    key,
+                    timestampRepository.getCurrent()
+            );
 
             writer.writeUTF(Operation.GET.getName());
             writer.flush();
@@ -69,10 +76,17 @@ public class ClientImpl implements Client {
 
             switch (response.getResult()) {
                 case OK:
-                    printfLn("Value received: [%s] = %s", key, response.getValue());
-                    break;
                 case TRY_OTHER:
-                    printfLn("No value received from server %s:%d. Please, try again later...", serverHost, serverPort);
+                    printfLn(
+                            "GET_%s key: %s value: %s realizada no servidor %s:%d, meu timestamp %d e do servidor %d",
+                            response.getResult(),
+                            key,
+                            response.getValue(),
+                            serverHost,
+                            socket.getPort(),
+                            request.getTimestamp(),
+                            response.getTimestamp()
+                    );
                     break;
                 case ERROR:
                 case EXCEPTION:
@@ -108,7 +122,7 @@ public class ClientImpl implements Client {
 
             writer.writeUTF(Operation.PUT.getName());
             writer.flush();
-            writer.writeUTF(new PutRequest(key, value).toJson());
+            writer.writeUTF(new PutRequest(host, socket.getPort(), key, value).toJson());
             writer.flush();
 
             final String jsonResponse = reader.readUTF();
@@ -119,7 +133,14 @@ public class ClientImpl implements Client {
                 throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
             }
 
-            printfLn("Value saved with timestamp %d", response.getTimestamp());
+            printfLn(
+                    "PUT_OK key: %s value: %s timestamp: %d realizada no servidor %s:%d",
+                    key,
+                    value,
+                    response.getTimestamp(),
+                    host,
+                    socket.getPort()
+            );
         } catch (ConnectException e) {
             log.e(String.format("Failed connect to socket on %s:%d", host, port), e);
         } catch (IOException e) {

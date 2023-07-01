@@ -1,7 +1,11 @@
 package server.node;
 
+import log.ConsoleLog;
+import log.Log;
 import server.Server;
 import ui.Message;
+
+import java.util.Arrays;
 
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.read;
@@ -12,20 +16,24 @@ public interface Node extends Server {
 
     static void main(String[] args) {
         try {
+            final Log log = new ConsoleLog("NodeMain");
+            final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--d") || arg.equals("-d"));
             final int port = Integer.parseInt(readWithDefault(Message.ENTER_PORT, "10098"));
             final String controllerHost = readWithDefault("Digite o endereço do Controller", "localhost");
             final int controllerPort = Integer.parseInt(readWithDefault("Digite a porta do Controller", "10097"));
-            final Node node = new NodeImpl(port, controllerHost, controllerPort);
+            final Node node = new NodeImpl(port, controllerHost, controllerPort, debug);
 
-            System.out.println("Iniciando node...");
+            log.setDebug(debug);
+
+            log.d("Starting node...");
             node.start();
-            System.out.println("Node iniciado...");
+            log.d("Node running...");
 
             read("Pressione qualquer tecla para encerrar...");
 
-            System.out.println("Finalizando node...");
+            log.d("Finishing node...");
             node.stop();
-            System.out.println("Node finalizado...");
+            log.d("Node finished!");
         } catch (Exception e) {
             handleException("NodeMain", "Failed to initialize Node", e);
         }
