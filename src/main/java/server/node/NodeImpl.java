@@ -18,7 +18,6 @@ import server.controller.thread.DispatcherThread;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import static util.AssertionUtils.handleException;
 
@@ -76,21 +75,23 @@ public class NodeImpl implements Node {
     @Override
     public void join() {
         try(Socket socket = new Socket(controllerHost, controllerPort)) {
-            final PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+            final DataInputStream reader = new DataInputStream(socket.getInputStream());
             final JoinRequest request = new JoinRequest(
                     serverSocket.getInetAddress().getHostAddress(),
                     serverSocket.getLocalPort()
             );
 
             log.d("Sending JOIN message...");
-            writer.write(Operation.JOIN.getName());
+            writer.writeUTF(Operation.JOIN.getName());
             writer.flush();
-            writer.write(gson.toJson(request));
+            writer.writeUTF(gson.toJson(request));
             writer.flush();
 
             log.d("Waiting for JOIN response...");
-            final String jsonResponse = reader.readLine();
+
+            final String jsonResponse = reader.readUTF();
+
             log.d(String.format("Response received: %s", jsonResponse));
             final JoinResponse response = gson.fromJson(jsonResponse, JoinResponse.class);
 

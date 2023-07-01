@@ -101,15 +101,21 @@ public class ControllerImpl implements Controller {
     @Override
     public JoinResponse join(JoinRequest request) {
         try {
-            if (nodes.stream().anyMatch((node) -> node.host.equals(request.getHost()) && node.getPort() == request.getPort()))
+            log.d(String.format("Joining node %s:%d", request.getHost(), request.getPort()));
+            if (nodes.stream().anyMatch((node) -> node.host.equals(request.getHost()) && node.getPort() == request.getPort())) {
+                log.d(String.format("Node %s:%d already joined!", request.getHost(), request.getPort()));
+
                 return new JoinResponse.Builder()
                         .message(String.format(
                                 "Node %s:%d already joined!",
                                 request.getHost(),
                                 request.getPort()
                         )).build();
+            }
 
             nodes.add(new Node(request));
+
+            log.d(String.format("Node %s:%d joined!", request.getHost(), request.getPort()));
 
             return new JoinResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {

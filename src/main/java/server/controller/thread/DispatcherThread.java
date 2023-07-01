@@ -6,6 +6,7 @@ import model.Operation;
 import server.Server;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -37,11 +38,12 @@ public class DispatcherThread extends Thread {
                 log.d("Listening for operation requests...");
                 final Socket socket = serverSocket.accept();
                 log.d("Request received!");
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                final DataInputStream reader = new DataInputStream(socket.getInputStream());
 
-                final String operationCode = reader.readLine();
-                final String message = reader.readLine();
+                final String operationCode = reader.readUTF();
+                final String message = reader.readUTF();
 
+                log.d("Starting Worker thread...");
                 new WorkerThread(server, socket, Operation.fromCode(operationCode), message).start();
             }
 

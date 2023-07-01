@@ -1,6 +1,8 @@
 package server.controller.thread;
 
 import com.google.gson.Gson;
+import log.ConsoleLog;
+import log.Log;
 import model.Operation;
 import model.Response;
 import model.request.GetRequest;
@@ -11,6 +13,7 @@ import server.Server;
 import server.controller.Controller;
 
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
@@ -18,6 +21,7 @@ import static util.AssertionUtils.handleException;
 
 public class WorkerThread extends Thread {
     private static final String TAG = "WorkerThread";
+    private static final Log log = new ConsoleLog(TAG);
     private static final Gson gson = new Gson();
     private final Server server;
     private final Socket socket;
@@ -35,11 +39,12 @@ public class WorkerThread extends Thread {
     public void run() {
         try {
             final Response response;
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
 
             switch (operation) {
                 case JOIN:
                     if (server instanceof Controller) {
+                        log.d("Processing JOIN request...");
                         response = ((Controller)server).join(gson.fromJson(request, JoinRequest.class));
                         break;
                     }
@@ -58,7 +63,8 @@ public class WorkerThread extends Thread {
                     throw new IllegalStateException("Operation unknown!");
             }
 
-            writer.write(gson.toJson(response));
+            writer.writeUTF(gson.toJson(response));
+            writer.flush();
             socket.close();
         } catch (Exception e) {
             handleException(TAG, "Failed during worker execution", e);

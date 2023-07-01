@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 public class ConsoleLog implements Log {
     private final Logger logger;
-    private boolean debug = false;
+    private boolean debug = true;
 
     public ConsoleLog(String tag) {
         this.logger = Logger.getLogger(tag);
