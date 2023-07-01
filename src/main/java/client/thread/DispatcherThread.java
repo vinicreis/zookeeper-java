@@ -1,13 +1,16 @@
 package client.thread;
 
 import client.Client;
+import log.ConsoleLog;
+import log.Log;
 import model.Operation;
 
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.read;
 
 public class DispatcherThread extends Thread {
-    private static final String TAG = "";
+    private static final String TAG = "DispatcherThread";
+    private static final Log log = new ConsoleLog(TAG);
     private final Client client;
     private boolean running = true;
 
@@ -18,8 +21,9 @@ public class DispatcherThread extends Thread {
     @Override
     public void run() {
         try {
+            log.d("Starting dispatcher thread...");
             while (running) {
-                final Operation operation = Operation.fromCode(read("Digite a operação desejada: "));
+                final Operation operation = Operation.readToClient();
 
                 switch (operation) {
                     case GET:

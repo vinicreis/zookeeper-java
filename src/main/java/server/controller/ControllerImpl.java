@@ -165,13 +165,13 @@ public class ControllerImpl implements Controller {
                 final Node node = nodes.get(i);
 
                 try (Socket socket = new Socket(node.getHost(), node.getPort())) {
-                    final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    final DataInputStream reader = new DataInputStream(socket.getInputStream());
+                    final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
 
-                    writer.write(Operation.REPLICATE.getName());
-                    writer.write(request.toJson());
+                    writer.writeUTF(Operation.REPLICATE.getName());
+                    writer.writeUTF(request.toJson());
 
-                    final String jsonResult = reader.readLine();
+                    final String jsonResult = reader.readUTF();
                     final ReplicationResponse response = gson.fromJson(jsonResult, ReplicationResponse.class);
 
                     if(response.getResult() != Result.OK) portsWithError.add(i);

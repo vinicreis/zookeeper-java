@@ -1,12 +1,13 @@
 package client;
 
 import client.thread.DispatcherThread;
-import log.ConsoleLog;
 
-import java.net.Socket;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static util.IOUtil.read;
+import static util.AssertionUtils.handleException;
+import static util.IOUtil.readWithDefault;
 
 public interface Client {
     void start();
@@ -16,17 +17,13 @@ public interface Client {
 
     static void main(String[] args) {
         try {
-            final String host = read("Digite o seu host");
-            final int port = Integer.parseInt(read("Digite a sua porta"));
-            final String serverHost = read("Digite o host do servidor");
-            final String serverPortsList = read("Dígite as portas do servidor (\"10097,10098,...,10999\")");
-            final Integer[] serverPorts;
-
-            if (serverPortsList == null || serverPortsList.isEmpty()) {
-                serverPorts = new Integer[] { 10097, 10098, 10099 };
-            } else {
-                serverPorts = (Integer[])Arrays.stream(serverPortsList.replace(" ", "").split(",")).map(Integer::parseInt).toArray();
-            }
+            final String host = readWithDefault("Digite o seu host", "localhost");
+            final int port = Integer.parseInt(readWithDefault("Digite a sua porta", "10090"));
+            final String serverHost = readWithDefault("Digite o host do servidor", "localhost");
+            final String serverPortsList = readWithDefault("Dígite as portas do servidor" ,"10097,10098,10099");
+            final List<Integer> serverPorts = Arrays.stream(
+                    serverPortsList.replace(" ", "").split(",")
+            ).map(Integer::parseInt).collect(Collectors.toList());
 
             final Client client = new ClientImpl(port, host, serverHost, serverPorts);
 
@@ -34,7 +31,7 @@ public interface Client {
 
             new DispatcherThread(client).start();
         } catch (Exception e) {
-
+            handleException("ClientMain", "Failed to start client!", e);
         }
     }
 }

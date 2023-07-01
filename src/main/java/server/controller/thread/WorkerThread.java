@@ -12,9 +12,7 @@ import model.request.ReplicationRequest;
 import server.Server;
 import server.controller.Controller;
 
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import static util.AssertionUtils.handleException;

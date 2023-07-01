@@ -46,6 +46,6 @@ public class IOUtil {
         if (read == null || read.isEmpty() || read.equals("\n"))
             return defaultValue;
         else
-            return reader.readLine();
+            return read;
     }
 }

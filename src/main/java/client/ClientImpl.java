@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
 import model.Operation;
+import model.Result;
 import model.repository.TimestampRepository;
 import model.request.GetRequest;
 import model.request.PutRequest;
@@ -11,11 +12,12 @@ import model.response.GetResponse;
 import model.response.PutResponse;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.util.List;
 import java.util.Random;
 
-import static util.AssertionUtils.check;
-import static util.AssertionUtils.isNullOrEmpty;
+import static util.AssertionUtils.*;
 import static util.IOUtil.*;
 
 public class ClientImpl implements Client {
@@ -23,20 +25,12 @@ public class ClientImpl implements Client {
     private static final Log log = new ConsoleLog(TAG);
     private static final Gson gson = new Gson();
     private final String serverHost;
-    private final Integer[] serverPorts;
+    private final List<Integer> serverPorts;
     private final String host;
     private final int port;
     private final TimestampRepository timestampRepository;
 
-    public ClientImpl(int port, String host, String serverHost) {
-        this.port = port;
-        this.host = host;
-        this.serverHost = serverHost;
-        this.serverPorts = new Integer[]{ 10097, 10098, 10099 };
-        this.timestampRepository = new TimestampRepository();
-    }
-
-    public ClientImpl(int port, String host, String serverHost, Integer[] serverPorts){
+    public ClientImpl(int port, String host, String serverHost, List<Integer> serverPorts){
         this.port = port;
         this.host = host;
         this.serverHost = serverHost;
@@ -60,14 +54,16 @@ public class ClientImpl implements Client {
 
         try(Socket socket = new Socket(serverHost, serverPort)) {
             final String key = read("Digite a chave a ser lida");
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+            final DataInputStream reader = new DataInputStream(socket.getInputStream());
             final GetRequest request = new GetRequest(key, timestampRepository.getCurrent());
 
-            writer.write(Operation.GET.getName());
-            writer.write(gson.toJson(request));
+            writer.writeUTF(Operation.GET.getName());
+            writer.flush();
+            writer.writeUTF(gson.toJson(request));
+            writer.flush();
 
-            final String jsonResponse = reader.readLine();
+            final String jsonResponse = reader.readUTF();
             log.d(String.format("GET response received: %s", jsonResponse));
             final GetResponse response = gson.fromJson(jsonResponse, GetResponse.class);
 
@@ -92,27 +88,44 @@ public class ClientImpl implements Client {
     @Override
     public void put() {
         // TODO: Extract strings
-        try(Socket socket = new Socket(host, port)) {
+        try(Socket socket = new Socket(host, getServerPort())) {
             final String key = read("Digite a chave utilizada");
             final String value = read("Digite o valor a ser armazenado");
 
-            check(isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
-            check(isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");
+            check(!isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
+            check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");
 
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+            final DataInputStream reader = new DataInputStream(socket.getInputStream());
 
-            writer.write(Operation.PUT.getName());
-            writer.write(new PutRequest(key, value).toJson());
+            writer.writeUTF(Operation.PUT.getName());
+            writer.flush();
+            writer.writeUTF(new PutRequest(key, value).toJson());
+            writer.flush();
 
-            final String jsonResponse = reader.readLine();
+            final String jsonResponse = reader.readUTF();
+            log.d(String.format("Response received: %s", jsonResponse));
             final PutResponse response = gson.fromJson(jsonResponse, PutResponse.class);
+
+            if(response.getResult() != Result.OK) {
+                throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
+            }
+
+            printfLn("Value saved with timestamp %d", response.getTimestamp());
+        } catch (ConnectException e) {
+            log.e(String.format("Failed connect to socket on %s:%d", host, port), e);
         } catch (IOException e) {
             log.e("Failed to run PUT operation", e);
+        } catch (RuntimeException e) {
+            handleException(TAG, "Failed to complete PUT operation!", e);
         }
     }
 
     private int getServerPort() {
-        return serverPorts[new Random().nextInt(serverPorts.length - 1)];
+        if(serverPorts.size() == 1)
+            return serverPorts.get(0);
+        else if (serverPorts.size() > 1)
+            return serverPorts.get(new Random().nextInt(serverPorts.size() - 1));
+        else throw new IllegalArgumentException("No server ports were found!");
     }
 }

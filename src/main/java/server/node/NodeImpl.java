@@ -108,15 +108,15 @@ public class NodeImpl implements Node {
     @Override
     public PutResponse put(PutRequest request) {
         try(Socket socket = new Socket(controllerHost, controllerPort)) {
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+            final DataInputStream reader = new DataInputStream(socket.getInputStream());
 
             log.d("Sending PUT request to Controller...");
-            writer.write(Operation.PUT.getName());
-            writer.write(request.toJson());
+            writer.writeUTF(Operation.PUT.getName());
+            writer.writeUTF(request.toJson());
 
             log.d("Waiting PUT response from Controller...");
-            final String jsonResponse = reader.readLine();
+            final String jsonResponse = reader.readUTF();
             log.d(String.format("PUT response received: %s", jsonResponse));
 
             final PutResponse controllerResponse = gson.fromJson(jsonResponse, PutResponse.class);
