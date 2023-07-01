@@ -49,11 +49,6 @@ public class ControllerImpl implements Controller {
             this.port = request.getPort();
         }
 
-        Node(String host, int port) {
-            this.host = host;
-            this.port = port;
-        }
-
         public String getHost() {
             return host;
         }
