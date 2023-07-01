@@ -98,6 +98,14 @@ public class ClientImpl implements Client {
             final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
             final DataInputStream reader = new DataInputStream(socket.getInputStream());
 
+            log.d(
+                    String.format(
+                            "PUT Sending data to server %s:%d",
+                            socket.getInetAddress().getHostAddress(),
+                            socket.getPort()
+                    )
+            );
+
             writer.writeUTF(Operation.PUT.getName());
             writer.flush();
             writer.writeUTF(new PutRequest(key, value).toJson());

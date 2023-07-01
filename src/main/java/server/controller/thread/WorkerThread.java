@@ -63,6 +63,7 @@ public class WorkerThread extends Thread {
 
             writer.writeUTF(gson.toJson(response));
             writer.flush();
+
             socket.close();
         } catch (Exception e) {
             handleException(TAG, "Failed during worker execution", e);

@@ -137,7 +137,10 @@ public class ControllerImpl implements Controller {
             );
 
             if (replicationResponse.getResult() == Result.OK)
-                return new PutResponse.Builder().timestamp(timestamp).build();
+                return new PutResponse.Builder()
+                        .timestamp(timestamp)
+                        .result(Result.OK)
+                        .build();
 
             return new PutResponse.Builder()
                     .result(replicationResponse.getResult())
@@ -168,10 +171,21 @@ public class ControllerImpl implements Controller {
                     final DataInputStream reader = new DataInputStream(socket.getInputStream());
                     final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
 
+                    log.d(
+                            String.format(
+                                    "Sending replication request of key %s with value %s to %s:%d",
+                                    request.getKey(),
+                                    request.getValue(),
+                                    node.getHost(),
+                                    node.getPort()
+                            )
+                    );
+
                     writer.writeUTF(Operation.REPLICATE.getName());
                     writer.writeUTF(request.toJson());
 
                     final String jsonResult = reader.readUTF();
+                    log.d(String.format("REPLICATE response received: %s", jsonResult));
                     final ReplicationResponse response = gson.fromJson(jsonResult, ReplicationResponse.class);
 
                     if(response.getResult() != Result.OK) portsWithError.add(i);
@@ -182,14 +196,17 @@ public class ControllerImpl implements Controller {
             }
 
             if (portsWithError.isEmpty()) {
-                return new ReplicationResponse.Builder().build();
+                return new ReplicationResponse.Builder().result(Result.OK).build();
             } else {
                 return new ReplicationResponse.Builder()
                         .result(Result.ERROR)
                         .message(
                                 String.format(
-                                        "Falha ao replicar o dado no peer na porta %s",
-                                        String.join(", ", (String[])portsWithError.stream().map(Object::toString).toArray())
+                                        "Falha ao replicar o dado no peer na(s) porta(s) %s",
+                                        String.join(
+                                                ", ",
+                                                portsWithError.stream().map(Object::toString).toArray(String[]::new)
+                                        )
                                 )
                         ).build();
             }

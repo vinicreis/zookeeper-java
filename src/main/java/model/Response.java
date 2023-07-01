@@ -12,28 +12,28 @@ public abstract class Response {
     }
 
     public abstract static class AbstractBuilder<T> {
-        protected Result result;
+        protected Result result = Result.OK;
         protected String message;
 
         public abstract T build();
 
-        public AbstractBuilder<T> result(Result result) {
+        public <B extends AbstractBuilder<T>> B result(Result result) {
             this.result = result;
 
-            return this;
+            return (B)this;
         }
 
-        public AbstractBuilder<T> message(String message) {
+        public <B extends AbstractBuilder<T>> B message(String message) {
             this.message = message;
 
-            return this;
+            return (B)this;
         }
 
-        public AbstractBuilder<T> exception(Exception e) {
+        public <B extends AbstractBuilder<T>> B exception(Exception e) {
             this.result = Result.EXCEPTION;
             this.message = "Falha ao processar operação";
 
-            return this;
+            return (B)this;
         }
     }
 

@@ -128,11 +128,11 @@ public class NodeImpl implements Node {
                         .build();
             }
 
-            log.d("Saving data locally after successful PUT request on Controller...");
-            final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
+//            log.d("Saving data locally after successful PUT request on Controller...");
+//            final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
 
             return new PutResponse.Builder()
-                    .timestamp(timestamp)
+                    .timestamp(controllerResponse.getTimestamp())
                     .result(Result.OK)
                     .build();
         } catch (IOException e) {
