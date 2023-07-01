@@ -1,8 +1,8 @@
-package server.node;
+package server;
 
 import log.ConsoleLog;
 import log.Log;
-import server.Server;
+import server.node.NodeImpl;
 import ui.Message;
 
 import java.util.Arrays;

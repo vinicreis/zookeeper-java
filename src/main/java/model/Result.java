@@ -5,5 +5,5 @@ public enum Result {
     ERROR,
     TRY_OTHER,
     NOT_FOUND,
-    EXCEPTION;
+    EXCEPTION
 }

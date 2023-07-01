@@ -13,6 +13,7 @@ import model.request.ReplicationRequest;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
+import server.Node;
 import server.controller.thread.DispatcherThread;
 
 import java.io.*;
@@ -138,9 +139,6 @@ public class NodeImpl implements Node {
                         .message(controllerResponse.getMessage())
                         .build();
             }
-
-//            log.d("Saving data locally after successful PUT request on Controller...");
-//            final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
 
             return new PutResponse.Builder()
                     .timestamp(controllerResponse.getTimestamp())

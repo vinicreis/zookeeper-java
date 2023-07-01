@@ -1,10 +1,10 @@
-package server.controller;
+package server;
 
 import log.ConsoleLog;
 import log.Log;
 import model.request.JoinRequest;
 import model.response.JoinResponse;
-import server.Server;
+import server.controller.ControllerImpl;
 import ui.Message;
 
 import java.util.Arrays;

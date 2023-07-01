@@ -10,7 +10,7 @@ import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
 import server.Server;
-import server.controller.Controller;
+import server.Controller;
 
 import java.io.DataOutputStream;
 import java.net.Socket;

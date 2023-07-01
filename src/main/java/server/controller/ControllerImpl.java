@@ -13,6 +13,7 @@ import model.request.ReplicationRequest;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
+import server.Controller;
 import server.controller.thread.DispatcherThread;
 
 import java.io.*;
