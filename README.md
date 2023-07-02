@@ -1,6 +1,6 @@
-# Zookepeer Java
+# ZooKeeper Java
 
-Este projeto é uma implementação simples do sistema Zookepeer em Java para a disciplina de Sistemas Distribuídos
+Este projeto é uma implementação simples do sistema ZooKeeper em Java para a disciplina de Sistemas Distribuídos
 na UFABC no quadrimestre 2023.2.
 
 ## Como utilizar
