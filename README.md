@@ -45,6 +45,7 @@ de como compilar e executar o projeto diretamente pelo Terminal:
 - [ ] Sincronizar os timestamps entre todas as instâncias
 - [ ] Notificar o líder quando um servidor auxiliar se desconectar
 - [ ] Atualizar um servidor auxiliar ao realizar seu JOIN
+- [ ] Verificar todos os inputs utilizando `assert` ou `check`
 - [ ] Revisar documentação para entrega
 - [ ] Gravar vídeo
 - [ ] Fazer relatório
