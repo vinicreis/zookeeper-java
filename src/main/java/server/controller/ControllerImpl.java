@@ -5,9 +5,11 @@ import log.Log;
 import model.enums.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
+import model.request.ExitRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
+import model.response.ExitResponse;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
@@ -15,6 +17,7 @@ import server.Controller;
 import server.thread.DispatcherThread;
 import server.thread.ReplicateThread;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class ControllerImpl implements Controller {
     private final List<Node> nodes;
     private final int port;
 
-    public ControllerImpl(int port, boolean debug) {
+    public ControllerImpl(int port, boolean debug) throws IOException {
         this.port = port;
         this.nodes = new ArrayList<>();
         this.dispatcher = new DispatcherThread(this);
@@ -203,6 +206,35 @@ public class ControllerImpl implements Controller {
             handleException(TAG, "Failed to process REPLICATE operation", e);
 
             return new ReplicationResponse.Builder().exception(e).build();
+        }
+    }
+
+    @Override
+    public ExitResponse exit(ExitRequest request) {
+        try {
+            final Node node = new Node(request);
+
+            if (!nodes.contains(node))
+                return new ExitResponse.Builder()
+                        .timestamp(timestampRepository.getCurrent())
+                        .result(Result.ERROR)
+                        .message("Servidor %s:%d não conectado!")
+                        .build();
+
+            nodes.remove(node);
+
+            log.d(String.format("Node %s exited!", node));
+
+            return new ExitResponse.Builder()
+                    .timestamp(timestampRepository.getCurrent())
+                    .result(Result.OK)
+                    .build();
+        } catch (Exception e) {
+            handleException(TAG, String.format("Failed to remove node %s:%d", request.getHost(), request.getPort()), e);
+
+            return new ExitResponse.Builder()
+                    .exception(e)
+                    .build();
         }
     }
 }

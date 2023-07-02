@@ -9,7 +9,8 @@ public enum Operation {
     JOIN("JOIN", 0),
     GET("GET", 1),
     PUT("PUT", 2),
-    REPLICATE("REPLICATE", 3);
+    REPLICATE("REPLICATE", 3),
+    EXIT("EXIT", 4);
 
     private final String name;
     private final int code;
@@ -33,6 +34,7 @@ public enum Operation {
             case "PUT": return PUT;
             case "GET": return GET;
             case "REPLICATE": return REPLICATE;
+            case "EXIT": return EXIT;
             default:
                 throw new IllegalArgumentException(String.format("Operation of code %s not found!", code));
         }

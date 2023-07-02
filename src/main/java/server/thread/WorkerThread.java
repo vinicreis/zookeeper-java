@@ -1,16 +1,11 @@
 package server.thread;
 
-import com.google.gson.Gson;
-import log.ConsoleLog;
-import log.Log;
 import model.enums.Operation;
+import model.request.*;
 import model.response.Response;
-import model.request.GetRequest;
-import model.request.JoinRequest;
-import model.request.PutRequest;
-import model.request.ReplicationRequest;
 import server.Server;
 import server.Controller;
+import util.Serializer;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -19,8 +14,6 @@ import static util.AssertionUtils.handleException;
 
 public class WorkerThread extends Thread {
     private static final String TAG = "WorkerThread";
-    private static final Log log = new ConsoleLog(TAG);
-    private static final Gson gson = new Gson();
     private final Server server;
     private final Socket socket;
     private final Operation operation;
@@ -42,26 +35,32 @@ public class WorkerThread extends Thread {
             switch (operation) {
                 case JOIN:
                     if (server instanceof Controller) {
-                        log.d("Processing JOIN request...");
-                        response = ((Controller)server).join(gson.fromJson(request, JoinRequest.class));
+                        response = ((Controller)server).join(Serializer.fromJson(request, JoinRequest.class));
                         break;
                     }
 
-                    throw new IllegalStateException("Nodes can not handle join requests");
+                    throw new IllegalStateException("Nodes can not handle JOIN requests");
                 case PUT:
-                    response = server.put(gson.fromJson(request, PutRequest.class));
+                    response = server.put(Serializer.fromJson(request, PutRequest.class));
                     break;
                 case REPLICATE:
-                    response = server.replicate(gson.fromJson(request, ReplicationRequest.class));
+                    response = server.replicate(Serializer.fromJson(request, ReplicationRequest.class));
                     break;
                 case GET:
-                    response = server.get(gson.fromJson(request, GetRequest.class));
+                    response = server.get(Serializer.fromJson(request, GetRequest.class));
                     break;
+                case EXIT:
+                    if (server instanceof Controller) {
+                        response = ((Controller)server).exit(Serializer.fromJson(request, ExitRequest.class));
+                        break;
+                    }
+
+                    throw new IllegalStateException("Nodes can not handle EXIT requests");
                 default:
                     throw new IllegalStateException("Operation unknown!");
             }
 
-            writer.writeUTF(gson.toJson(response));
+            writer.writeUTF(Serializer.toJson(response));
             writer.flush();
 
             socket.close();

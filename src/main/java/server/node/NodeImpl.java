@@ -5,15 +5,18 @@ import log.Log;
 import model.enums.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
+import model.request.ExitRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
+import model.response.ExitResponse;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
 import server.Node;
 import server.thread.DispatcherThread;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 import static util.AssertionUtils.handleException;
@@ -30,7 +33,7 @@ public class NodeImpl implements Node {
     private final int controllerPort;
     private final int port;
 
-    public NodeImpl(int port, String controllerHost, int controllerPort, boolean debug) {
+    public NodeImpl(int port, String controllerHost, int controllerPort, boolean debug) throws IOException {
         this.port = port;
         this.controllerHost = controllerHost;
         this.controllerPort = controllerPort;
@@ -68,6 +71,8 @@ public class NodeImpl implements Node {
     public void stop() {
         dispatcher.interrupt();
         timestampRepository.stop();
+
+        exit();
     }
 
     @Override
@@ -152,6 +157,25 @@ public class NodeImpl implements Node {
             handleException(TAG, "Failed to process REPLICATE operation", e);
 
             return new ReplicationResponse.Builder().exception(e).build();
+        }
+    }
+
+    @Override
+    public void exit() {
+        try {
+            final ExitRequest request = new ExitRequest(InetAddress.getLocalHost().getHostAddress(), port);
+
+            log.d("Leaving controller...");
+
+            final ExitResponse response = doRequest(controllerHost, controllerPort, request, ExitResponse.class);
+
+            if (response.getResult() != Result.OK) {
+                throw new RuntimeException(String.format("Failed to send EXIT request: %s", response.getMessage()));
+            }
+
+            log.d("Successfully left on controller!");
+        } catch (Exception e) {
+            handleException(TAG, "Failed to process EXIT request", e);
         }
     }
 }

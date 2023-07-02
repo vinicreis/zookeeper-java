@@ -7,8 +7,10 @@ import server.Server;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import static util.AssertionUtils.handleException;
 
@@ -16,15 +18,17 @@ public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private final Log log = new ConsoleLog(TAG);
     private final Server server;
+    private final ServerSocket serverSocket;
     private boolean running = true;
 
-    public DispatcherThread(Server server) {
+    public DispatcherThread(Server server) throws IOException {
         this.server = server;
+        this.serverSocket = new ServerSocket(server.getPort());
     }
 
     @Override
     public void run() {
-        try(ServerSocket serverSocket = new ServerSocket(server.getPort())) {
+        try {
             while (running) {
                 log.d("Listening for operation requests...");
                 final Socket socket = serverSocket.accept();
@@ -39,6 +43,8 @@ public class DispatcherThread extends Thread {
             }
         } catch (EOFException e) {
             handleException(TAG, "Invalid input received from client", e);
+        } catch (SocketException e) {
+            log.d("Socket closed!");
         } catch (Exception e) {
             handleException(TAG, "Failed during dispatch execution", e);
         }
@@ -48,6 +54,7 @@ public class DispatcherThread extends Thread {
     public void interrupt(){
         try {
             super.interrupt();
+            serverSocket.close();
             running = false;
         } catch (Exception e) {
             handleException(TAG, "Failed while interrupting dispatcher!", e);

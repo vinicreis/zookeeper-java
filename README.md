@@ -43,10 +43,8 @@ de como compilar e executar o projeto diretamente pelo Terminal:
 - [X] Executar as requisições REPLICATE de forma assíncrona
 - [X] Generalizar a implementação de criação de um Socket
 - [X] Sincronizar os timestamps entre todas as instâncias
-- [ ] Abstrair a criação da requisição entre Sockets
-- [ ] Executar as operações dos Sockets em Threads
-- [ ] Notificar o líder quando um servidor auxiliar se desconectar
-- [ ] Atualizar um servidor auxiliar ao realizar seu JOIN
+- [X] Abstrair a criação da requisição entre Sockets
+- [X] Notificar o líder quando um servidor auxiliar se desconectar
 - [ ] Verificar todos os inputs utilizando `assert` ou `check`
 - [ ] Revisar documentação para entrega
 - [ ] Gravar vídeo

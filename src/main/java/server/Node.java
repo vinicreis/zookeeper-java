@@ -8,16 +8,16 @@ import ui.Message;
 import java.util.Arrays;
 
 import static util.AssertionUtils.handleException;
-import static util.IOUtil.read;
-import static util.IOUtil.readWithDefault;
+import static util.IOUtil.*;
 
 public interface Node extends Server {
     void join();
+    void exit();
 
     static void main(String[] args) {
         try {
             final Log log = new ConsoleLog("NodeMain");
-            final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--d") || arg.equals("-d"));
+            final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--debug") || arg.equals("-d"));
             final int port = Integer.parseInt(readWithDefault(Message.ENTER_PORT, "10098"));
             final String controllerHost = readWithDefault("Digite o endereço do Controller", "localhost");
             final int controllerPort = Integer.parseInt(readWithDefault("Digite a porta do Controller", "10097"));
@@ -29,7 +29,7 @@ public interface Node extends Server {
             node.start();
             log.d("Node running...");
 
-            read("Pressione qualquer tecla para encerrar...");
+            pressAnyKeyToFinish();
 
             log.d("Finishing node...");
             node.stop();

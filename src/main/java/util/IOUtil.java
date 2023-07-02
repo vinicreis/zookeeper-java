@@ -53,4 +53,10 @@ public class IOUtil {
         else
             return read;
     }
+
+    public static void pressAnyKeyToFinish() throws IOException {
+        printLn("Pressione qualquer tecla para finalizar...");
+
+        System.in.read();
+    }
 }

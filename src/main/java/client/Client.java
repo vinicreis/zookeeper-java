@@ -17,7 +17,7 @@ public interface Client {
 
     static void main(String[] args) {
         try {
-            final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--d") || arg.equals("-d"));
+            final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--debug") || arg.equals("-d"));
             final int port = Integer.parseInt(readWithDefault("Digite a sua porta", "10090"));
             final String serverHost = readWithDefault("Digite o host do servidor", "localhost");
             final String serverPortsList = readWithDefault("Dígite as portas do servidor" ,"10097,10098,10099");
@@ -28,8 +28,6 @@ public interface Client {
             final Client client = new ClientImpl(port, serverHost, serverPorts, debug);
 
             client.start();
-
-            new WorkerThread(client).start();
         } catch (Exception e) {
             handleException("ClientMain", "Failed to start client!", e);
         }

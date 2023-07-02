@@ -1,5 +1,6 @@
 package client;
 
+import client.thread.WorkerThread;
 import log.ConsoleLog;
 import log.Log;
 import model.enums.Result;
@@ -31,6 +32,7 @@ public class ClientImpl implements Client {
     private final int port;
     private final TimestampRepository timestampRepository;
     private final HashMap<String, Long> keyTimestampMap;
+    private final WorkerThread workerThread;
 
     public ClientImpl(int port, String serverHost, List<Integer> serverPorts, boolean debug) throws UnknownHostException {
         this.host = InetAddress.getLocalHost().getHostAddress();
@@ -39,6 +41,7 @@ public class ClientImpl implements Client {
         this.serverPorts = serverPorts;
         this.timestampRepository = new TimestampRepository();
         this.keyTimestampMap = new LinkedHashMap<>();
+        this.workerThread = new WorkerThread(this);
 
         log.setDebug(debug);
     }
@@ -46,6 +49,7 @@ public class ClientImpl implements Client {
     @Override
     public void start() {
         timestampRepository.start();
+        workerThread.start();
     }
 
     @Override
