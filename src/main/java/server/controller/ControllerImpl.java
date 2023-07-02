@@ -1,9 +1,7 @@
 package server.controller;
 
-import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
-import model.Operation;
 import model.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
@@ -17,8 +15,7 @@ import server.Controller;
 import server.controller.thread.DispatcherThread;
 import server.controller.thread.ReplicateThread;
 
-import java.io.*;
-import java.net.Socket;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +25,6 @@ import static util.IOUtil.printfLn;
 public class ControllerImpl implements Controller {
     private static final String TAG = "ControllerImpl";
     private static final Log log = new ConsoleLog(TAG);
-    private static final Gson gson = new Gson();
     private final KeyValueRepository keyValueRepository;
     private final TimestampRepository timestampRepository;
     private final DispatcherThread dispatcher;
@@ -146,6 +142,7 @@ public class ControllerImpl implements Controller {
                     .build();
         } catch (Exception e) {
             handleException(TAG, "Failed to process PUT operation", e);
+
             return new PutResponse.Builder().exception(e).build();
         }
     }
@@ -197,6 +194,7 @@ public class ControllerImpl implements Controller {
                     ).build();
         } catch (Exception e) {
             handleException(TAG, "Failed to process REPLICATE operation", e);
+
             return new ReplicationResponse.Builder().exception(e).build();
         }
     }

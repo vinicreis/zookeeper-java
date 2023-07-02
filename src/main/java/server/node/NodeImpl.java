@@ -105,6 +105,7 @@ public class NodeImpl implements Node {
                         throw new RuntimeException(String.format("Failed to join on controller server: %s", response.getMessage()));
                     }
 
+                    timestampRepository.update(response.getTimestamp());
                     log.d("Node successfully joined!");
                 }),
                 e -> handleException(TAG, "Failed to process JOIN operation", e)
@@ -137,6 +138,8 @@ public class NodeImpl implements Node {
 
                     final PutResponse controllerResponse = gson.fromJson(jsonResponse, PutResponse.class);
 
+                    timestampRepository.update(controllerResponse.getTimestamp());
+
                     if (controllerResponse.getResult() != Result.OK) {
                         return new PutResponse.Builder()
                                 .result(Result.ERROR)
@@ -168,7 +171,9 @@ public class NodeImpl implements Node {
             );
 
             log.d("Saving replicated data locally...");
+
             keyValueRepository.update(request.getKey(), request.getValue(), request.getTimestamp());
+            timestampRepository.update(request.getTimestamp());
 
             return new ReplicationResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {

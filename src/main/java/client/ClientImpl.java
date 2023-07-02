@@ -14,6 +14,8 @@ import model.type.SocketRunnable;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -29,6 +31,7 @@ public class ClientImpl implements Client {
     private final String host;
     private final int port;
     private final TimestampRepository timestampRepository;
+    private final HashMap<String, Long> keyTimestampMap;
 
     public ClientImpl(int port, String host, String serverHost, List<Integer> serverPorts, boolean debug){
         this.port = port;
@@ -36,6 +39,7 @@ public class ClientImpl implements Client {
         this.serverHost = serverHost;
         this.serverPorts = serverPorts;
         this.timestampRepository = new TimestampRepository();
+        this.keyTimestampMap = new LinkedHashMap<>();
 
         log.setDebug(debug);
     }
@@ -58,11 +62,19 @@ public class ClientImpl implements Client {
                 getServerPort(),
                 (socket, in, out) -> {
                     final String key = read("Digite a chave a ser lida");
+                    final Long timestamp;
+
+                    if(keyTimestampMap.containsKey(key)) {
+                        timestamp = keyTimestampMap.get(key);
+                    } else {
+                        timestamp = timestampRepository.getCurrent();
+                    }
+
                     final GetRequest request = new GetRequest(
                             serverHost,
                             socket.getPort(),
                             key,
-                            timestampRepository.getCurrent()
+                            timestamp
                     );
 
                     out.writeUTF(Operation.GET.getName());
@@ -73,6 +85,9 @@ public class ClientImpl implements Client {
                     final String jsonResponse = in.readUTF();
                     log.d(String.format("GET response received: %s", jsonResponse));
                     final GetResponse response = gson.fromJson(jsonResponse, GetResponse.class);
+
+                    timestampRepository.update(request.getTimestamp());
+                    keyTimestampMap.put(key, response.getTimestamp());
 
                     switch (response.getResult()) {
                         case OK:
@@ -91,7 +106,7 @@ public class ClientImpl implements Client {
                         case ERROR:
                         case EXCEPTION:
                         default:
-                            printfLn("Failed to key value with key [%s]: %s", key, response.getMessage());
+                            printfLn("Falha ao obter o valor da key %s: %s", key, response.getMessage());
                     }
                 },
                 e -> log.e("Failed to process GET request", e)
@@ -131,6 +146,9 @@ public class ClientImpl implements Client {
                         if(response.getResult() != Result.OK) {
                             throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
                         }
+
+                        timestampRepository.update(response.getTimestamp());
+                        keyTimestampMap.put(key, response.getTimestamp());
 
                         printfLn(
                                 "PUT_OK key: %s value: %s timestamp: %d realizada no servidor %s:%d",

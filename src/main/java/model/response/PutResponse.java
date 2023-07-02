@@ -6,9 +6,6 @@ import model.Response;
 import model.Result;
 
 public class PutResponse extends Response {
-    @SerializedName("timestamp")
-    private final Long timestamp;
-
     private PutResponse(Result result, String message, Long timestamp) {
         super(result, message);
 
@@ -33,9 +30,5 @@ public class PutResponse extends Response {
     @Override
     public Operation getOperation() {
         return Operation.PUT;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
     }
 }

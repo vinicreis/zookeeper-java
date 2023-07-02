@@ -6,31 +6,19 @@ import model.Response;
 import model.Result;
 
 public class GetResponse extends Response {
-    @SerializedName("value")
-    private String value;
-
-    @SerializedName("timestamp")
-    private Long timestamp;
+    @SerializedName("value") private String value;
 
     private GetResponse(Result result, String message, String value, Long timestamp) {
-        super(result, message);
+        super(result, message, timestamp);
 
         this.value = value;
-        this.timestamp = timestamp;
     }
 
     public static class Builder extends AbstractBuilder<GetResponse> {
         private String value = null;
-        private Long timestamp = null;
 
         public Builder value(String value) {
             this.value = value;
-
-            return this;
-        }
-
-        public Builder timestamp(Long timestamp) {
-            this.timestamp = timestamp;
 
             return this;
         }
@@ -48,9 +36,5 @@ public class GetResponse extends Response {
 
     public String getValue() {
         return value;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
     }
 }

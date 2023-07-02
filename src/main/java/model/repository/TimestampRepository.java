@@ -3,6 +3,8 @@ package model.repository;
 import log.ConsoleLog;
 import log.Log;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class TimestampRepository {
     private static final String TAG = "TimestampRepository";
     private static final Log log = new ConsoleLog(TAG);
@@ -10,7 +12,7 @@ public class TimestampRepository {
     private final IncrementThread thread = new IncrementThread();
     private final Long step;
     private boolean running = false;
-    private Long current = 0L;
+    private final AtomicLong current = new AtomicLong(0L);
 
     public TimestampRepository() {
         this.step = DEFAULT_STEP;
@@ -25,10 +27,10 @@ public class TimestampRepository {
         public void run() {
             try {
                 while (running) {
-                    if (current == Long.MAX_VALUE)
-                        current = 0L;
+                    if (current.get() == Long.MAX_VALUE)
+                        current.set(0L);
                     else
-                        current++;
+                        current.incrementAndGet();
 
                     sleep(step);
                 }
@@ -45,7 +47,7 @@ public class TimestampRepository {
     }
 
     public Long getCurrent() throws IllegalStateException {
-        if(running) return current;
+        if(running) return current.get();
 
         throw new IllegalStateException("Timestamp clock not running");
     }
@@ -55,12 +57,16 @@ public class TimestampRepository {
         thread.start();
     }
 
+    public void update(Long timestamp) {
+        current.set(timestamp);
+    }
+
     public void stop() {
         running = false;
     }
 
     public void reset() {
         running = false;
-        current = 0L;
+        current.set(0L);
     }
 }
