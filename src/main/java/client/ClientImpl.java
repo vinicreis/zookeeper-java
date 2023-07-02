@@ -109,7 +109,7 @@ public class ClientImpl implements Client {
                         final String value = read("Digite o valor a ser armazenado");
 
                         check(!isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
-                        check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");;
+                        check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");
 
                         log.d(
                                 String.format(

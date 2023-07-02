@@ -6,7 +6,6 @@ import log.Log;
 import model.Operation;
 
 import static util.AssertionUtils.handleException;
-import static util.IOUtil.printLn;
 
 public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
