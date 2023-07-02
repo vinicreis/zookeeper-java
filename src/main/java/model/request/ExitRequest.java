@@ -1,7 +1,6 @@
 package model.request;
 
 import model.enums.Operation;
-import util.Serializer;
 
 public class ExitRequest implements Request {
     private final String host;
@@ -25,10 +24,5 @@ public class ExitRequest implements Request {
     @Override
     public int getPort() {
         return this.port;
-    }
-
-    @Override
-    public String toJson() {
-        return Serializer.toJson(this);
     }
 }

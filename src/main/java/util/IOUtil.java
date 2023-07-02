@@ -12,11 +12,6 @@ public class IOUtil {
             System.out.print(message);
     }
 
-    public static void printf(String message, Object... args) {
-        if(message != null && !message.isEmpty())
-            System.out.printf(message, args);
-    }
-
     public static void printLn(String message) {
         if(message != null && !message.isEmpty())
             System.out.println(message);
