@@ -1,6 +1,6 @@
 package server;
 
-import model.Result;
+import model.enums.Result;
 import model.exception.OutdatedEntryException;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;

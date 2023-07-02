@@ -1,8 +1,7 @@
 package model.request;
 
 import com.google.gson.annotations.SerializedName;
-import model.Operation;
-import model.Request;
+import model.enums.Operation;
 
 public class GetRequest implements Request {
     @SerializedName("host") private final String host;

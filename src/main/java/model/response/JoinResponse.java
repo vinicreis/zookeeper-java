@@ -1,8 +1,7 @@
 package model.response;
 
-import model.Operation;
-import model.Response;
-import model.Result;
+import model.enums.Operation;
+import model.enums.Result;
 
 public class JoinResponse extends Response {
 

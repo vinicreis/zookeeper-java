@@ -2,7 +2,7 @@ package client;
 
 import log.ConsoleLog;
 import log.Log;
-import model.Result;
+import model.enums.Result;
 import model.repository.TimestampRepository;
 import model.request.GetRequest;
 import model.request.PutRequest;
@@ -55,10 +55,9 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void get() {
+    public void get(String key) {
         try {
             final int serverPort = getServerPort();
-            final String key = read("Digite a chave a ser lida");
             final Long timestamp;
 
             if(keyTimestampMap.containsKey(key)) {
@@ -103,11 +102,9 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public void put() {
+    public void put(String key, String value) {
         try {
             final int serverPort = getServerPort();
-            final String key = read("Digite a chave utilizada");
-            final String value = read("Digite o valor a ser armazenado");
 
             check(!isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
             check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");

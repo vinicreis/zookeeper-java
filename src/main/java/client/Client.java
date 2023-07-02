@@ -1,6 +1,6 @@
 package client;
 
-import client.thread.DispatcherThread;
+import client.thread.WorkerThread;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +12,8 @@ import static util.IOUtil.readWithDefault;
 public interface Client {
     void start();
     void stop();
-    void put();
-    void get();
+    void put(String key, String value);
+    void get(String key);
 
     static void main(String[] args) {
         try {
@@ -29,7 +29,7 @@ public interface Client {
 
             client.start();
 
-            new DispatcherThread(client).start();
+            new WorkerThread(client).start();
         } catch (Exception e) {
             handleException("ClientMain", "Failed to start client!", e);
         }

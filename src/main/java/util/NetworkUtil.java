@@ -1,7 +1,7 @@
 package util;
 
-import model.Request;
-import model.Response;
+import model.request.Request;
+import model.response.Response;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

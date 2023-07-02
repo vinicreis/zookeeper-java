@@ -1,8 +1,8 @@
-package server.controller.thread;
+package server.thread;
 
 import log.ConsoleLog;
 import log.Log;
-import model.Result;
+import model.enums.Result;
 import model.request.ReplicationRequest;
 import model.response.ReplicationResponse;
 import server.Controller;

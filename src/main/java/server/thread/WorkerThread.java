@@ -1,10 +1,10 @@
-package server.controller.thread;
+package server.thread;
 
 import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
-import model.Operation;
-import model.Response;
+import model.enums.Operation;
+import model.response.Response;
 import model.request.GetRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;

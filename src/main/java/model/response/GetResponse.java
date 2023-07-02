@@ -1,9 +1,8 @@
 package model.response;
 
 import com.google.gson.annotations.SerializedName;
-import model.Operation;
-import model.Response;
-import model.Result;
+import model.enums.Operation;
+import model.enums.Result;
 
 public class GetResponse extends Response {
     @SerializedName("value") private String value;

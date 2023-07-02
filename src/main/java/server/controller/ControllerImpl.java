@@ -2,7 +2,7 @@ package server.controller;
 
 import log.ConsoleLog;
 import log.Log;
-import model.Result;
+import model.enums.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
 import model.request.JoinRequest;
@@ -12,8 +12,8 @@ import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
 import server.Controller;
-import server.controller.thread.DispatcherThread;
-import server.controller.thread.ReplicateThread;
+import server.thread.DispatcherThread;
+import server.thread.ReplicateThread;
 
 import java.util.ArrayList;
 import java.util.List;

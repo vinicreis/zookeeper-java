@@ -1,6 +1,7 @@
-package model;
+package model.request;
 
 import com.google.gson.Gson;
+import model.enums.Operation;
 
 public interface Request {
     Operation getOperation();

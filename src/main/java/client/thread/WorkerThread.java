@@ -3,17 +3,18 @@ package client.thread;
 import client.Client;
 import log.ConsoleLog;
 import log.Log;
-import model.Operation;
+import model.enums.Operation;
 
 import static util.AssertionUtils.handleException;
+import static util.IOUtil.read;
 
-public class DispatcherThread extends Thread {
+public class WorkerThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private static final Log log = new ConsoleLog(TAG);
     private final Client client;
     private boolean running = true;
 
-    public DispatcherThread(Client client) {
+    public WorkerThread(Client client) {
         this.client = client;
     }
 
@@ -27,13 +28,13 @@ public class DispatcherThread extends Thread {
 
                 switch (operation) {
                     case GET:
-                        client.get();
+                        client.get(read("Digite a chave a ser lida"));
+
                         break;
                     case PUT:
-                        client.put();
+                        client.put(read("Digite a chave utilizada"), read("Digite o valor a ser armazenado"));
+
                         break;
-                    case JOIN:
-                    case REPLICATE:
                     default:
                         throw new IllegalArgumentException("Client should not call any option other than GET or PUT");
                 }

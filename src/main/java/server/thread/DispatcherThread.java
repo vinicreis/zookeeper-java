@@ -1,8 +1,8 @@
-package server.controller.thread;
+package server.thread;
 
 import log.ConsoleLog;
 import log.Log;
-import model.Operation;
+import model.enums.Operation;
 import server.Server;
 
 import java.io.DataInputStream;

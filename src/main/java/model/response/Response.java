@@ -1,6 +1,8 @@
-package model;
+package model.response;
 
 import com.google.gson.annotations.SerializedName;
+import model.enums.Operation;
+import model.enums.Result;
 
 public abstract class Response {
     @SerializedName("response") protected Result result;

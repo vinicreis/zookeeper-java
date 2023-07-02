@@ -2,7 +2,7 @@ package server.node;
 
 import log.ConsoleLog;
 import log.Log;
-import model.Result;
+import model.enums.Result;
 import model.repository.KeyValueRepository;
 import model.repository.TimestampRepository;
 import model.request.JoinRequest;
@@ -12,7 +12,7 @@ import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
 import server.Node;
-import server.controller.thread.DispatcherThread;
+import server.thread.DispatcherThread;
 
 import java.net.InetAddress;
 
