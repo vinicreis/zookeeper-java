@@ -143,6 +143,7 @@ public class NodeImpl implements Node {
                     if (controllerResponse.getResult() != Result.OK) {
                         return new PutResponse.Builder()
                                 .result(Result.ERROR)
+                                .timestamp(timestampRepository.getCurrent())
                                 .message(controllerResponse.getMessage())
                                 .build();
                     }

@@ -32,6 +32,7 @@ public interface Server {
             if (entry == null) {
                 response = new GetResponse.Builder()
                         .result(Result.NOT_FOUND)
+                        .timestamp(getTimestampRepository().getCurrent())
                         .message(String.format("Valor com a chave %s não encontrado", request.getKey()))
                         .build();
             } else {
@@ -46,6 +47,7 @@ public interface Server {
 
             response = new GetResponse.Builder()
                     .result(Result.TRY_OTHER)
+                    .timestamp(getTimestampRepository().getCurrent())
                     .message("Try other server or try later")
                     .exception(e)
                     .build();

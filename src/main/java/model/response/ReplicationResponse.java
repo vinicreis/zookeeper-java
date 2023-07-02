@@ -1,19 +1,18 @@
 package model.response;
 
-import com.google.gson.annotations.SerializedName;
 import model.Operation;
 import model.Response;
 import model.Result;
 
 public class ReplicationResponse extends Response {
-    private ReplicationResponse(Result result, String message) {
-        super(result, message);
+    private ReplicationResponse(Result result, String message, Long timestamp) {
+        super(result, message, timestamp);
     }
 
     public static class Builder extends AbstractBuilder<ReplicationResponse> {
         @Override
         public ReplicationResponse build() {
-            return new ReplicationResponse(result, message);
+            return new ReplicationResponse(result, message, timestamp);
         }
     }
 

@@ -6,14 +6,14 @@ import model.Result;
 
 public class JoinResponse extends Response {
 
-    private JoinResponse(Result result, String message) {
-        super(result, message);
+    private JoinResponse(Result result, String message, Long timestamp) {
+        super(result, message, timestamp);
     }
 
     public static class Builder extends AbstractBuilder<JoinResponse> {
         @Override
         public JoinResponse build() {
-            return new JoinResponse(this.result, this.message);
+            return new JoinResponse(this.result, this.message, this.timestamp);
         }
     }
 

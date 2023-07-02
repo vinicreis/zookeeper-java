@@ -84,6 +84,7 @@ public class ControllerImpl implements Controller {
                 log.d(String.format("Node %s:%d already joined!", request.getHost(), request.getPort()));
 
                 return new JoinResponse.Builder()
+                        .timestamp(timestampRepository.getCurrent())
                         .message(String.format(
                                 "Node %s:%d already joined!",
                                 request.getHost(),
@@ -95,7 +96,10 @@ public class ControllerImpl implements Controller {
 
             log.d(String.format("Node %s:%d joined!", request.getHost(), request.getPort()));
 
-            return new JoinResponse.Builder().result(Result.OK).build();
+            return new JoinResponse.Builder()
+                    .timestamp(timestampRepository.getCurrent())
+                    .result(Result.OK)
+                    .build();
         } catch (Exception e) {
             handleException(TAG, "Failed to process JOIN operation", e);
             return new JoinResponse.Builder().exception(e).build();
@@ -131,6 +135,7 @@ public class ControllerImpl implements Controller {
                         .build();
 
             return new PutResponse.Builder()
+                    .timestamp(timestampRepository.getCurrent())
                     .result(replicationResponse.getResult())
                     .message(
                             String.format(
@@ -178,11 +183,15 @@ public class ControllerImpl implements Controller {
                         request.getTimestamp()
                 );
 
-                return new ReplicationResponse.Builder().result(Result.OK).build();
+                return new ReplicationResponse.Builder()
+                        .timestamp(timestampRepository.getCurrent())
+                        .result(Result.OK)
+                        .build();
             }
 
             return new ReplicationResponse.Builder()
                     .result(Result.ERROR)
+                    .timestamp(timestampRepository.getCurrent())
                     .message(
                             String.format(
                                     "Falha ao replicar o dado no peer no(s) servidor(s) %s",
