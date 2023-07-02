@@ -13,6 +13,8 @@ import model.request.ReplicationRequest;
 import model.response.JoinResponse;
 import model.response.PutResponse;
 import model.response.ReplicationResponse;
+import model.type.SocketCallable;
+import model.type.SocketRunnable;
 import server.Node;
 import server.controller.thread.DispatcherThread;
 
@@ -78,76 +80,82 @@ public class NodeImpl implements Node {
 
     @Override
     public void join() {
-        try(Socket socket = new Socket(controllerHost, controllerPort)) {
-            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            final DataInputStream reader = new DataInputStream(socket.getInputStream());
-            final JoinRequest request = new JoinRequest(
-                    serverSocket.getInetAddress().getHostAddress(),
-                    serverSocket.getLocalPort()
-            );
+        new SocketRunnable(
+                controllerHost,
+                controllerPort,
+                ((socket, in, out) -> {
+                    final JoinRequest request = new JoinRequest(
+                            serverSocket.getInetAddress().getHostAddress(),
+                            serverSocket.getLocalPort()
+                    );
 
-            log.d("Sending JOIN message...");
-            writer.writeUTF(Operation.JOIN.getName());
-            writer.flush();
-            writer.writeUTF(gson.toJson(request));
-            writer.flush();
+                    log.d("Sending JOIN message...");
+                    out.writeUTF(Operation.JOIN.getName());
+                    out.flush();
+                    out.writeUTF(gson.toJson(request));
+                    out.flush();
 
-            log.d("Waiting for JOIN response...");
+                    log.d("Waiting for JOIN response...");
 
-            final String jsonResponse = reader.readUTF();
+                    final String jsonResponse = in.readUTF();
 
-            log.d(String.format("Response received: %s", jsonResponse));
-            final JoinResponse response = gson.fromJson(jsonResponse, JoinResponse.class);
+                    log.d(String.format("Response received: %s", jsonResponse));
+                    final JoinResponse response = gson.fromJson(jsonResponse, JoinResponse.class);
 
-            if (response.getResult() != Result.OK) {
-                throw new RuntimeException(String.format("Failed to join on controller server: %s", response.getMessage()));
-            }
+                    if (response.getResult() != Result.OK) {
+                        throw new RuntimeException(String.format("Failed to join on controller server: %s", response.getMessage()));
+                    }
 
-            log.d("Node successfully joined!");
-        } catch (IOException e) {
-            handleException(TAG, "Failed to process JOIN operation", e);
-        }
+                    log.d("Node successfully joined!");
+                }),
+                e -> handleException(TAG, "Failed to process JOIN operation", e)
+        ).run();
     }
 
     @Override
     public PutResponse put(PutRequest request) {
-        try(Socket socket = new Socket(controllerHost, controllerPort)) {
-            printfLn(
-                    "Encaminhando %s:%d PUT key: %s value: $s",
-                    request.getHost(),
-                    request.getPort(),
-                    request.getKey(),
-                    request.getValue()
-            );
+        return new SocketCallable<>(
+                controllerHost,
+                controllerPort,
+                ((socket, in, out) -> {
+                    printfLn(
+                            "Encaminhando %s:%d PUT key: %s value: $s",
+                            request.getHost(),
+                            request.getPort(),
+                            request.getKey(),
+                            request.getValue()
+                    );
 
-            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            final DataInputStream reader = new DataInputStream(socket.getInputStream());
+                    log.d("Sending PUT request to Controller...");
+                    out.writeUTF(Operation.PUT.getName());
+                    out.flush();
+                    out.writeUTF(request.toJson());
+                    out.flush();
 
-            log.d("Sending PUT request to Controller...");
-            writer.writeUTF(Operation.PUT.getName());
-            writer.writeUTF(request.toJson());
+                    log.d("Waiting PUT response from Controller...");
+                    final String jsonResponse = in.readUTF();
+                    log.d(String.format("PUT response received: %s", jsonResponse));
 
-            log.d("Waiting PUT response from Controller...");
-            final String jsonResponse = reader.readUTF();
-            log.d(String.format("PUT response received: %s", jsonResponse));
+                    final PutResponse controllerResponse = gson.fromJson(jsonResponse, PutResponse.class);
 
-            final PutResponse controllerResponse = gson.fromJson(jsonResponse, PutResponse.class);
+                    if (controllerResponse.getResult() != Result.OK) {
+                        return new PutResponse.Builder()
+                                .result(Result.ERROR)
+                                .message(controllerResponse.getMessage())
+                                .build();
+                    }
 
-            if (controllerResponse.getResult() != Result.OK) {
-                return new PutResponse.Builder()
-                        .result(Result.ERROR)
-                        .message(controllerResponse.getMessage())
-                        .build();
-            }
+                    return new PutResponse.Builder()
+                            .timestamp(controllerResponse.getTimestamp())
+                            .result(Result.OK)
+                            .build();
+                }),
+                e -> {
+                    handleException(TAG, "Failed to process PUT operation", e);
 
-            return new PutResponse.Builder()
-                    .timestamp(controllerResponse.getTimestamp())
-                    .result(Result.OK)
-                    .build();
-        } catch (IOException e) {
-            handleException(TAG, "Failed to process PUT operation", e);
-            return new PutResponse.Builder().exception(e).build();
-        }
+                    return new PutResponse.Builder().exception(e).build();
+                }
+        ).call();
     }
 
     @Override
@@ -166,6 +174,7 @@ public class NodeImpl implements Node {
             return new ReplicationResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {
             handleException(TAG, "Failed to process REPLICATE operation", e);
+
             return new ReplicationResponse.Builder().exception(e).build();
         }
     }

@@ -38,19 +38,17 @@ public enum Operation {
         }
     }
 
-    public static Operation fromInput(int code) {
+    public static Operation fromClient(int code) throws InterruptedException {
         switch (code) {
-            case 0: return JOIN;
             case 1: return GET;
             case 2: return PUT;
-            case 3: return REPLICATE;
             default:
-                throw new IllegalArgumentException(String.format("Operation of code %s not found!", code));
+                throw new InterruptedException("Interrupt command from input!");
         }
     }
 
-    public static Operation readToClient() throws IOException {
-        return fromInput(Integer.parseInt(IOUtil.read("Digite a operação desejada\n%s : ", printToClient())));
+    public static Operation readToClient() throws IOException, InterruptedException {
+        return fromClient(Integer.parseInt(IOUtil.read("Digite a operação desejada ou outra tecla para encerrar...\n%s: ", printToClient())));
     }
 
     private static String printToClient() {

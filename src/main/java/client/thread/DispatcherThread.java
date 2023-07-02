@@ -6,7 +6,7 @@ import log.Log;
 import model.Operation;
 
 import static util.AssertionUtils.handleException;
-import static util.IOUtil.read;
+import static util.IOUtil.printLn;
 
 public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
@@ -20,9 +20,10 @@ public class DispatcherThread extends Thread {
 
     @Override
     public void run() {
-        try {
-            log.d("Starting dispatcher thread...");
-            while (running) {
+        log.d("Starting dispatcher thread...");
+
+        while (running) {
+            try {
                 final Operation operation = Operation.readToClient();
 
                 switch (operation) {
@@ -35,12 +36,15 @@ public class DispatcherThread extends Thread {
                     case JOIN:
                     case REPLICATE:
                     default:
-                        running = false;
                         throw new IllegalArgumentException("Client should not call any option other than GET or PUT");
                 }
+            } catch (InterruptedException | NumberFormatException e) {
+                running = false;
+
+                client.stop();
+            } catch (Exception e) {
+                handleException(TAG, "Failed during thread execution!", e);
             }
-        } catch (Exception e) {
-            handleException(TAG, "Failed during thread execution!", e);
         }
     }
 }

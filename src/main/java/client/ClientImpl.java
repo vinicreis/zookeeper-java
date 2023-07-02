@@ -10,10 +10,10 @@ import model.request.GetRequest;
 import model.request.PutRequest;
 import model.response.GetResponse;
 import model.response.PutResponse;
+import model.type.SocketRunnable;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.ConnectException;
-import java.net.Socket;
 import java.util.List;
 import java.util.Random;
 
@@ -47,110 +47,113 @@ public class ClientImpl implements Client {
 
     @Override
     public void stop() {
+        printLn("Encerrando...");
         timestampRepository.stop();
     }
 
     @Override
     public void get() {
-        final int serverPort = getServerPort();
-
-        try(Socket socket = new Socket(serverHost, serverPort)) {
-            final String key = read("Digite a chave a ser lida");
-            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            final DataInputStream reader = new DataInputStream(socket.getInputStream());
-            final GetRequest request = new GetRequest(
-                    serverHost,
-                    socket.getPort(),
-                    key,
-                    timestampRepository.getCurrent()
-            );
-
-            writer.writeUTF(Operation.GET.getName());
-            writer.flush();
-            writer.writeUTF(gson.toJson(request));
-            writer.flush();
-
-            final String jsonResponse = reader.readUTF();
-            log.d(String.format("GET response received: %s", jsonResponse));
-            final GetResponse response = gson.fromJson(jsonResponse, GetResponse.class);
-
-            switch (response.getResult()) {
-                case OK:
-                case TRY_OTHER:
-                    printfLn(
-                            "GET_%s key: %s value: %s realizada no servidor %s:%d, meu timestamp %d e do servidor %d",
-                            response.getResult(),
-                            key,
-                            response.getValue(),
+        new SocketRunnable(
+                serverHost,
+                getServerPort(),
+                (socket, in, out) -> {
+                    final String key = read("Digite a chave a ser lida");
+                    final GetRequest request = new GetRequest(
                             serverHost,
                             socket.getPort(),
-                            request.getTimestamp(),
-                            response.getTimestamp()
+                            key,
+                            timestampRepository.getCurrent()
                     );
-                    break;
-                case ERROR:
-                case EXCEPTION:
-                default:
-                    printfLn("Failed to key value with key [%s]: %s", key, response.getMessage());
-                    break;
-            }
-        } catch (IOException e) {
-            log.e("Failed to process GET request", e);
-        }
+
+                    out.writeUTF(Operation.GET.getName());
+                    out.flush();
+                    out.writeUTF(gson.toJson(request));
+                    out.flush();
+
+                    final String jsonResponse = in.readUTF();
+                    log.d(String.format("GET response received: %s", jsonResponse));
+                    final GetResponse response = gson.fromJson(jsonResponse, GetResponse.class);
+
+                    switch (response.getResult()) {
+                        case OK:
+                        case TRY_OTHER:
+                            printfLn(
+                                    "GET_%s key: %s value: %s realizada no servidor %s:%d, meu timestamp %d e do servidor %d",
+                                    response.getResult(),
+                                    key,
+                                    response.getValue(),
+                                    serverHost,
+                                    socket.getPort(),
+                                    request.getTimestamp(),
+                                    response.getTimestamp()
+                            );
+                            break;
+                        case ERROR:
+                        case EXCEPTION:
+                        default:
+                            printfLn("Failed to key value with key [%s]: %s", key, response.getMessage());
+                    }
+                },
+                e -> log.e("Failed to process GET request", e)
+        ).run();
     }
 
     @Override
     public void put() {
         // TODO: Extract strings
-        try(Socket socket = new Socket(host, getServerPort())) {
-            final String key = read("Digite a chave utilizada");
-            final String value = read("Digite o valor a ser armazenado");
+        new SocketRunnable(
+                host,
+                getServerPort(),
+                ((socket, in, out) -> {
+                        final String key = read("Digite a chave utilizada");
+                        final String value = read("Digite o valor a ser armazenado");
 
-            check(!isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
-            check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");
+                        check(!isNullOrEmpty(key), "A chave não pode ser nula ou vazia");
+                        check(!isNullOrEmpty(value), "O valor não pode ser nulo ou vazio");;
 
-            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            final DataInputStream reader = new DataInputStream(socket.getInputStream());
+                        log.d(
+                                String.format(
+                                        "PUT Sending data to server %s:%d",
+                                        socket.getInetAddress().getHostAddress(),
+                                        socket.getPort()
+                                )
+                        );
 
-            log.d(
-                    String.format(
-                            "PUT Sending data to server %s:%d",
-                            socket.getInetAddress().getHostAddress(),
-                            socket.getPort()
-                    )
-            );
+                        out.writeUTF(Operation.PUT.getName());
+                        out.flush();
+                        out.writeUTF(new PutRequest(host, socket.getPort(), key, value).toJson());
+                        out.flush();
 
-            writer.writeUTF(Operation.PUT.getName());
-            writer.flush();
-            writer.writeUTF(new PutRequest(host, socket.getPort(), key, value).toJson());
-            writer.flush();
+                        final String jsonResponse = in.readUTF();
+                        log.d(String.format("Response received: %s", jsonResponse));
+                        final PutResponse response = gson.fromJson(jsonResponse, PutResponse.class);
 
-            final String jsonResponse = reader.readUTF();
-            log.d(String.format("Response received: %s", jsonResponse));
-            final PutResponse response = gson.fromJson(jsonResponse, PutResponse.class);
+                        if(response.getResult() != Result.OK) {
+                            throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
+                        }
 
-            if(response.getResult() != Result.OK) {
-                throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
-            }
-
-            printfLn(
-                    "PUT_OK key: %s value: %s timestamp: %d realizada no servidor %s:%d",
-                    key,
-                    value,
-                    response.getTimestamp(),
-                    host,
-                    socket.getPort()
-            );
-        } catch (ConnectException e) {
-            log.e(String.format("Failed connect to socket on %s:%d", host, port), e);
-        } catch (IOException e) {
-            log.e("Failed to run PUT operation", e);
-        } catch (RuntimeException e) {
-            handleException(TAG, "Failed to complete PUT operation!", e);
-        }
+                        printfLn(
+                                "PUT_OK key: %s value: %s timestamp: %d realizada no servidor %s:%d",
+                                key,
+                                value,
+                                response.getTimestamp(),
+                                host,
+                                socket.getPort()
+                        );
+                }),
+                e -> {
+                        if (e instanceof ConnectException) {
+                            log.e(String.format("Failed connect to socket on %s:%d", host, port), e);
+                        } else if (e instanceof IOException) {
+                            log.e("Failed to run PUT operation", e);
+                        } else {
+                            handleException(TAG, "Failed to complete PUT operation!", e);
+                        }
+                }
+        ).run();
     }
 
-    private int getServerPort() {
+    private int getServerPort() throws IllegalArgumentException {
         if(serverPorts.size() == 1)
             return serverPorts.get(0);
         else if (serverPorts.size() > 1)

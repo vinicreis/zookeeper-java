@@ -6,6 +6,7 @@ import model.Operation;
 import server.Server;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,6 +47,8 @@ public class DispatcherThread extends Thread {
             }
 
             serverSocket.close();
+        } catch (EOFException e) {
+            handleException(TAG, "Invalid input received from client", e);
         } catch (Exception e) {
             handleException(TAG, "Failed during dispatch execution", e);
         }
