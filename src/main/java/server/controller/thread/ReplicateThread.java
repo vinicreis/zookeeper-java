@@ -1,20 +1,16 @@
 package server.controller.thread;
 
-import com.google.gson.Gson;
 import log.ConsoleLog;
 import log.Log;
-import model.Operation;
 import model.Result;
 import model.request.ReplicationRequest;
 import model.response.ReplicationResponse;
 import server.Controller;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 
 import static util.AssertionUtils.handleException;
+import static util.NetworkUtil.doRequest;
 
 public class ReplicateThread extends Thread {
     private static final String TAG = "ReplicateThread";
@@ -30,10 +26,7 @@ public class ReplicateThread extends Thread {
 
     @Override
     public void run() {
-        try (Socket socket = new Socket(node.getHost(), node.getPort())) {
-            final DataInputStream reader = new DataInputStream(socket.getInputStream());
-            final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-
+        try {
             log.d(
                     String.format(
                             "Sending replication request of key %s with value %s to %s:%d",
@@ -44,12 +37,13 @@ public class ReplicateThread extends Thread {
                     )
             );
 
-            writer.writeUTF(Operation.REPLICATE.getName());
-            writer.writeUTF(request.toJson());
 
-            final String jsonResult = reader.readUTF();
-            log.d(String.format("REPLICATE response received: %s", jsonResult));
-            final ReplicationResponse response = new Gson().fromJson(jsonResult, ReplicationResponse.class);
+            final ReplicationResponse response = doRequest(
+                    node.getHost(),
+                    node.getPort(),
+                    request,
+                    ReplicationResponse.class
+            );
 
             result = response.getResult();
         } catch (IOException e) {

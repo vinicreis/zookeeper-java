@@ -15,7 +15,6 @@ import server.Controller;
 import server.controller.thread.DispatcherThread;
 import server.controller.thread.ReplicateThread;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class ControllerImpl implements Controller {
     private final List<Node> nodes;
     private final int port;
 
-    public ControllerImpl(int port, boolean debug) throws IOException {
+    public ControllerImpl(int port, boolean debug) {
         this.port = port;
         this.nodes = new ArrayList<>();
         this.dispatcher = new DispatcherThread(this);
@@ -130,7 +129,7 @@ public class ControllerImpl implements Controller {
 
             if (replicationResponse.getResult() == Result.OK)
                 return new PutResponse.Builder()
-                        .timestamp(timestamp)
+                        .timestamp(timestampRepository.getCurrent())
                         .result(Result.OK)
                         .build();
 
@@ -155,7 +154,6 @@ public class ControllerImpl implements Controller {
     @Override
     public ReplicationResponse replicate(ReplicationRequest request) {
         try {
-            // TODO: Do it async
             final List<Node> nodesWithError = new ArrayList<>(nodes.size());
 
             for (final Node node : nodes) {

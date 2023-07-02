@@ -18,7 +18,6 @@ public interface Client {
     static void main(String[] args) {
         try {
             final boolean debug = Arrays.stream(args).anyMatch((arg) -> arg.equals("--d") || arg.equals("-d"));
-            final String host = readWithDefault("Digite o seu host", "localhost");
             final int port = Integer.parseInt(readWithDefault("Digite a sua porta", "10090"));
             final String serverHost = readWithDefault("Digite o host do servidor", "localhost");
             final String serverPortsList = readWithDefault("Dígite as portas do servidor" ,"10097,10098,10099");
@@ -26,7 +25,7 @@ public interface Client {
                     serverPortsList.replace(" ", "").split(",")
             ).map(Integer::parseInt).collect(Collectors.toList());
 
-            final Client client = new ClientImpl(port, host, serverHost, serverPorts, debug);
+            final Client client = new ClientImpl(port, serverHost, serverPorts, debug);
 
             client.start();
 

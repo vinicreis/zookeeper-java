@@ -57,7 +57,7 @@ public interface Server {
             response = new GetResponse.Builder().exception(e).build();
         }
 
-        printf(
+        printfLn(
                 "Cliente %s:%d GET key: %s ts: %d. Meu ts é %d, portanto devolvendo ",
                 request.getHost(),
                 request.getPort(),
