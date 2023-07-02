@@ -40,7 +40,7 @@ public class KeyValueRepository {
     }
 
     public void update(String key, String value, Long timestamp) {
-        data.putIfAbsent(key, new Entry(value, timestamp));
+        data.put(key, new Entry(value, timestamp));
     }
 
     public Entry find(String key, Long timestamp) throws OutdatedEntryException {

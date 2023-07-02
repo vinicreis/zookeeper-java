@@ -16,6 +16,29 @@ import static util.IOUtil.readWithDefault;
 public interface Controller extends Server {
     JoinResponse join(JoinRequest request);
 
+    class Node {
+        private final String host;
+        private final int port;
+
+        public Node(JoinRequest request) {
+            this.host = request.getHost();
+            this.port = request.getPort();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s:%d", host, port);
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+    }
+
     static void main(String[] args) {
         try {
             final Log log = new ConsoleLog("ControllerMain");

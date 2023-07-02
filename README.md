@@ -40,7 +40,7 @@ de como compilar e executar o projeto diretamente pelo Terminal:
 
 ## Próximos passos
 
-- [ ] Executar as requisições REPLICATE de forma assíncrona
+- [X] Executar as requisições REPLICATE de forma assíncrona
 - [ ] Generalizar a implementação de criação de um Socket
 - [ ] Sincronizar os timestamps entre todas as instâncias
 - [ ] Revisar documentação para entrega

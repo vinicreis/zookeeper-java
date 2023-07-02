@@ -15,6 +15,7 @@ import model.response.PutResponse;
 import model.response.ReplicationResponse;
 import server.Controller;
 import server.controller.thread.DispatcherThread;
+import server.controller.thread.ReplicateThread;
 
 import java.io.*;
 import java.net.Socket;
@@ -42,24 +43,6 @@ public class ControllerImpl implements Controller {
         this.keyValueRepository = new KeyValueRepository(this.timestampRepository);
 
         log.setDebug(debug);
-    }
-
-    private static class Node {
-        private final String host;
-        private final int port;
-
-        Node(JoinRequest request) {
-            this.host = request.getHost();
-            this.port = request.getPort();
-        }
-
-        public String getHost() {
-            return host;
-        }
-
-        public int getPort() {
-            return port;
-        }
     }
 
     @Override
@@ -101,7 +84,7 @@ public class ControllerImpl implements Controller {
     public JoinResponse join(JoinRequest request) {
         try {
             log.d(String.format("Joining node %s:%d", request.getHost(), request.getPort()));
-            if (nodes.stream().anyMatch((node) -> node.host.equals(request.getHost()) && node.getPort() == request.getPort())) {
+            if (nodes.stream().anyMatch((node) -> node.getHost().equals(request.getHost()) && node.getPort() == request.getPort())) {
                 log.d(String.format("Node %s:%d already joined!", request.getHost(), request.getPort()));
 
                 return new JoinResponse.Builder()
@@ -171,40 +154,25 @@ public class ControllerImpl implements Controller {
     public ReplicationResponse replicate(ReplicationRequest request) {
         try {
             // TODO: Do it async
-            final List<Integer> portsWithError = new ArrayList<>(nodes.size());
+            final List<Node> nodesWithError = new ArrayList<>(nodes.size());
 
-            for (int i = 0; i < nodes.size(); i++) {
-                final Node node = nodes.get(i);
+            for (final Node node : nodes) {
+                final ReplicateThread replicateThread = new ReplicateThread(node, request);
 
-                try (Socket socket = new Socket(node.getHost(), node.getPort())) {
-                    final DataInputStream reader = new DataInputStream(socket.getInputStream());
-                    final DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+                log.d(String.format("Starting replication to node %s...", node.toString()));
 
-                    log.d(
-                            String.format(
-                                    "Sending replication request of key %s with value %s to %s:%d",
-                                    request.getKey(),
-                                    request.getValue(),
-                                    node.getHost(),
-                                    node.getPort()
-                            )
-                    );
+                replicateThread.start();
+                replicateThread.join();
 
-                    writer.writeUTF(Operation.REPLICATE.getName());
-                    writer.writeUTF(request.toJson());
-
-                    final String jsonResult = reader.readUTF();
-                    log.d(String.format("REPLICATE response received: %s", jsonResult));
-                    final ReplicationResponse response = gson.fromJson(jsonResult, ReplicationResponse.class);
-
-                    if(response.getResult() != Result.OK) portsWithError.add(i);
-                } catch (IOException e) {
-                    portsWithError.add(i);
-                    handleException(TAG, String.format("Failed during REPLICATE to node %s:%d", node.getHost(), node.getPort()), e);
-                }
+                if (replicateThread.getResult() != Result.OK) nodesWithError.add(node);
+                log.d(String.format(
+                        "Replication to node %s got result: %s",
+                        node,
+                        replicateThread.getResult().toString())
+                );
             }
 
-            if (portsWithError.isEmpty()) {
+            if (nodesWithError.isEmpty()) {
                 printfLn(
                         "Enviando PUT_OK ao Cliente %s:%d da key: %s ts: %d",
                         request.getHost(),
@@ -214,19 +182,19 @@ public class ControllerImpl implements Controller {
                 );
 
                 return new ReplicationResponse.Builder().result(Result.OK).build();
-            } else {
-                return new ReplicationResponse.Builder()
-                        .result(Result.ERROR)
-                        .message(
-                                String.format(
-                                        "Falha ao replicar o dado no peer na(s) porta(s) %s",
-                                        String.join(
-                                                ", ",
-                                                portsWithError.stream().map(Object::toString).toArray(String[]::new)
-                                        )
-                                )
-                        ).build();
             }
+
+            return new ReplicationResponse.Builder()
+                    .result(Result.ERROR)
+                    .message(
+                            String.format(
+                                    "Falha ao replicar o dado no peer no(s) servidor(s) %s",
+                                    String.join(
+                                            ", ",
+                                            nodesWithError.stream().map(Node::toString).toArray(String[]::new)
+                                    )
+                            )
+                    ).build();
         } catch (Exception e) {
             handleException(TAG, "Failed to process REPLICATE operation", e);
             return new ReplicationResponse.Builder().exception(e).build();
