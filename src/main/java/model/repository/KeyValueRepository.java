@@ -55,8 +55,8 @@ public class KeyValueRepository {
         final Entry result = data.getOrDefault(key, null);
 
         if(result == null) return null;
-        if(result.getTimestamp() < timestamp)
-            throw new OutdatedEntryException(key, timestampRepository.getCurrent());
+        if(timestamp > 0 && result.getTimestamp() < timestamp)
+            throw new OutdatedEntryException(key, result.getTimestamp());
 
         return data.get(key);
     }

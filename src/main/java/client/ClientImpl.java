@@ -4,7 +4,6 @@ import client.thread.WorkerThread;
 import log.ConsoleLog;
 import log.Log;
 import model.enums.Result;
-import model.repository.TimestampRepository;
 import model.request.GetRequest;
 import model.request.PutRequest;
 import model.response.GetResponse;
@@ -20,7 +19,8 @@ import java.util.List;
 import java.util.Random;
 
 import static util.AssertionUtils.*;
-import static util.IOUtil.*;
+import static util.IOUtil.printLn;
+import static util.IOUtil.printfLn;
 import static util.NetworkUtil.doRequest;
 
 public class ClientImpl implements Client {

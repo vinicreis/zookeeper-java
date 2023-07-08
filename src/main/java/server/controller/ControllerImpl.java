@@ -105,7 +105,7 @@ public class ControllerImpl implements Controller {
     public PutResponse put(PutRequest request) {
         try {
             printfLn(
-                    "Cliente %s:%d PUT key: %s value: $s",
+                    "Cliente %s:%d PUT key: %s value: %s",
                     request.getHost(),
                     request.getPort(),
                     request.getKey(),

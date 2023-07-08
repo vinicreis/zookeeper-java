@@ -66,7 +66,7 @@ public interface Server {
                     .exception(e)
                     .build();
         } catch (Exception e) {
-            handleException("Server", "Failed to process JOIN operation", e);
+            handleException("Server", "Failed to process GET operation", e);
 
             response = new GetResponse.Builder().exception(e).build();
         }

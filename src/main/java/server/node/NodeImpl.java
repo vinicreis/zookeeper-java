@@ -17,7 +17,6 @@ import server.thread.DispatcherThread;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
 
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.printfLn;
@@ -86,7 +85,7 @@ public class NodeImpl implements Node {
     public PutResponse put(PutRequest request) {
         try {
             printfLn(
-                    "Encaminhando %s:%d PUT key: %s value: $s",
+                    "Encaminhando %s:%d PUT key: %s value: %s",
                     request.getHost(),
                     request.getPort(),
                     request.getKey(),
