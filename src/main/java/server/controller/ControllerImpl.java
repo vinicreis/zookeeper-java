@@ -49,11 +49,6 @@ public class ControllerImpl implements Controller {
     }
 
     @Override
-    public TimestampRepository getTimestampRepository() {
-        return timestampRepository;
-    }
-
-    @Override
     public KeyValueRepository getKeyValueRepository() {
         return keyValueRepository;
     }
@@ -86,7 +81,6 @@ public class ControllerImpl implements Controller {
                 log.d(String.format("Node %s:%d already joined!", request.getHost(), request.getPort()));
 
                 return new JoinResponse.Builder()
-                        .timestamp(timestampRepository.getCurrent())
                         .message(String.format(
                                 "Node %s:%d already joined!",
                                 request.getHost(),
@@ -99,7 +93,6 @@ public class ControllerImpl implements Controller {
             log.d(String.format("Node %s:%d joined!", request.getHost(), request.getPort()));
 
             return new JoinResponse.Builder()
-                    .timestamp(timestampRepository.getCurrent())
                     .result(Result.OK)
                     .build();
         } catch (Exception e) {
@@ -119,7 +112,7 @@ public class ControllerImpl implements Controller {
                     request.getValue()
             );
 
-            final Long timestamp = keyValueRepository.upsert(request.getKey(), request.getValue());
+            final Long timestamp = keyValueRepository.insert(request.getKey(), request.getValue());
             final ReplicationResponse replicationResponse = replicate(
                     new ReplicationRequest(
                             request.getHost(),
@@ -191,8 +184,8 @@ public class ControllerImpl implements Controller {
             }
 
             return new ReplicationResponse.Builder()
-                    .result(Result.ERROR)
                     .timestamp(timestampRepository.getCurrent())
+                    .result(Result.ERROR)
                     .message(
                             String.format(
                                     "Falha ao replicar o dado no peer no(s) servidor(s) %s",
@@ -216,7 +209,6 @@ public class ControllerImpl implements Controller {
 
             if (!nodes.contains(node))
                 return new ExitResponse.Builder()
-                        .timestamp(timestampRepository.getCurrent())
                         .result(Result.ERROR)
                         .message("Servidor %s:%d não conectado!")
                         .build();
@@ -226,7 +218,6 @@ public class ControllerImpl implements Controller {
             log.d(String.format("Node %s exited!", node));
 
             return new ExitResponse.Builder()
-                    .timestamp(timestampRepository.getCurrent())
                     .result(Result.OK)
                     .build();
         } catch (Exception e) {

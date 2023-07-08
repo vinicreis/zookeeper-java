@@ -5,12 +5,18 @@ import model.exception.OutdatedEntryException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static util.AssertionUtils.check;
+
 public class KeyValueRepository {
     private final Map<String, Entry> data = new ConcurrentHashMap<>();
     private final TimestampRepository timestampRepository;
 
     public KeyValueRepository(TimestampRepository timestampRepository) {
         this.timestampRepository = timestampRepository;
+    }
+
+    public KeyValueRepository() {
+        this.timestampRepository = null;
     }
 
     public static class Entry {
@@ -31,7 +37,9 @@ public class KeyValueRepository {
         }
     }
 
-    public Long upsert(String key, String value) {
+    public Long insert(String key, String value) {
+        check(timestampRepository != null, "Timestamp repository is not initialized!");
+
         final Long timestamp = timestampRepository.getCurrent();
 
         data.put(key, new Entry(value, timestamp));
@@ -39,7 +47,7 @@ public class KeyValueRepository {
         return timestamp;
     }
 
-    public void update(String key, String value, Long timestamp) {
+    public void replicate(String key, String value, Long timestamp) {
         data.put(key, new Entry(value, timestamp));
     }
 

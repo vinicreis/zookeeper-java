@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Controller" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="server.Controller" />
-    <module name="zookepeer-java" />
+    <module name="zookeeper-java" />
     <option name="PROGRAM_PARAMETERS" value="-d" />
     <method v="2">
       <option name="Make" enabled="true" />

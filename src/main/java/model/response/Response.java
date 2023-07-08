@@ -7,18 +7,15 @@ import model.enums.Result;
 public abstract class Response {
     @SerializedName("response") protected Result result;
     @SerializedName("message") protected String message;
-    @SerializedName("timestamp") protected Long timestamp;
 
-    protected Response(Result result, String message, Long timestamp) {
+    protected Response(Result result, String message) {
         this.result = result;
         this.message = message;
-        this.timestamp = timestamp;
     }
 
     public abstract static class AbstractBuilder<T> {
         protected Result result = Result.OK;
         protected String message = null;
-        protected Long timestamp = null;
 
         public abstract T build();
 
@@ -30,12 +27,6 @@ public abstract class Response {
 
         public <B extends AbstractBuilder<T>> B message(String message) {
             this.message = message;
-
-            return (B)this;
-        }
-
-        public <B extends AbstractBuilder<T>> B timestamp(Long timestamp) {
-            this.timestamp = timestamp;
 
             return (B)this;
         }
@@ -57,9 +48,5 @@ public abstract class Response {
 
     public String getMessage() {
         return message;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
     }
 }

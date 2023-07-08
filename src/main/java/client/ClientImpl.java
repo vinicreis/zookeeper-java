@@ -30,7 +30,6 @@ public class ClientImpl implements Client {
     private final List<Integer> serverPorts;
     private final String host;
     private final int port;
-    private final TimestampRepository timestampRepository;
     private final HashMap<String, Long> keyTimestampMap;
     private final WorkerThread workerThread;
 
@@ -39,7 +38,6 @@ public class ClientImpl implements Client {
         this.port = port;
         this.serverHost = serverHost;
         this.serverPorts = serverPorts;
-        this.timestampRepository = new TimestampRepository();
         this.keyTimestampMap = new LinkedHashMap<>();
         this.workerThread = new WorkerThread(this);
 
@@ -48,14 +46,12 @@ public class ClientImpl implements Client {
 
     @Override
     public void start() {
-        timestampRepository.start();
         workerThread.start();
     }
 
     @Override
     public void stop() {
         printLn("Encerrando...");
-        timestampRepository.stop();
     }
 
     @Override
@@ -64,11 +60,7 @@ public class ClientImpl implements Client {
             final int serverPort = getServerPort();
             final Long timestamp;
 
-            if(keyTimestampMap.containsKey(key)) {
-                timestamp = keyTimestampMap.get(key);
-            } else {
-                timestamp = timestampRepository.getCurrent();
-            }
+            timestamp = keyTimestampMap.getOrDefault(key, 0L);
 
             final GetRequest request = new GetRequest(host, port, key, timestamp);
             final GetResponse response = doRequest(
@@ -78,7 +70,6 @@ public class ClientImpl implements Client {
                     GetResponse.class
             );
 
-            timestampRepository.update(request.getTimestamp());
             keyTimestampMap.put(key, response.getTimestamp());
 
             switch (response.getResult()) {
@@ -120,7 +111,6 @@ public class ClientImpl implements Client {
                 throw new RuntimeException(String.format("PUT operation failed: %s", response.getMessage()));
             }
 
-            timestampRepository.update(response.getTimestamp());
             keyTimestampMap.put(key, response.getTimestamp());
 
             printfLn(

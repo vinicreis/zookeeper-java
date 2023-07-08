@@ -4,7 +4,6 @@ import log.ConsoleLog;
 import log.Log;
 import model.enums.Result;
 import model.repository.KeyValueRepository;
-import model.repository.TimestampRepository;
 import model.request.ExitRequest;
 import model.request.JoinRequest;
 import model.request.PutRequest;
@@ -18,6 +17,7 @@ import server.thread.DispatcherThread;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
 
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.printfLn;
@@ -27,7 +27,6 @@ public class NodeImpl implements Node {
     private static final String TAG = "NodeImpl";
     private static final Log log = new ConsoleLog(TAG);
     private final KeyValueRepository keyValueRepository;
-    private final TimestampRepository timestampRepository;
     private final DispatcherThread dispatcher;
     private final String controllerHost;
     private final int controllerPort;
@@ -38,8 +37,7 @@ public class NodeImpl implements Node {
         this.controllerHost = controllerHost;
         this.controllerPort = controllerPort;
         this.dispatcher = new DispatcherThread(this);
-        this.timestampRepository = new TimestampRepository();
-        this.keyValueRepository = new KeyValueRepository(this.timestampRepository);
+        this.keyValueRepository = new KeyValueRepository();
 
         log.setDebug(debug);
     }
@@ -50,18 +48,12 @@ public class NodeImpl implements Node {
     }
 
     @Override
-    public TimestampRepository getTimestampRepository() {
-        return timestampRepository;
-    }
-
-    @Override
     public KeyValueRepository getKeyValueRepository() {
         return keyValueRepository;
     }
 
     @Override
     public void start() {
-        timestampRepository.start();
         dispatcher.start();
 
         join();
@@ -70,7 +62,6 @@ public class NodeImpl implements Node {
     @Override
     public void stop() {
         dispatcher.interrupt();
-        timestampRepository.stop();
 
         exit();
     }
@@ -85,7 +76,6 @@ public class NodeImpl implements Node {
                 throw new RuntimeException(String.format("Failed to join on controller server: %s", response.getMessage()));
             }
 
-            timestampRepository.update(response.getTimestamp());
             log.d("Node successfully joined!");
         } catch (Exception e) {
             handleException(TAG, "Failed to process JOIN operation", e);
@@ -116,12 +106,10 @@ public class NodeImpl implements Node {
                     PutResponse.class
             );
 
-            timestampRepository.update(controllerResponse.getTimestamp());
-
             if (controllerResponse.getResult() != Result.OK) {
                 return new PutResponse.Builder()
+                        .timestamp(controllerResponse.getTimestamp())
                         .result(Result.ERROR)
-                        .timestamp(timestampRepository.getCurrent())
                         .message(controllerResponse.getMessage())
                         .build();
             }
@@ -149,8 +137,7 @@ public class NodeImpl implements Node {
 
             log.d("Saving replicated data locally...");
 
-            keyValueRepository.update(request.getKey(), request.getValue(), request.getTimestamp());
-            timestampRepository.update(request.getTimestamp());
+            keyValueRepository.replicate(request.getKey(), request.getValue(), request.getTimestamp());
 
             return new ReplicationResponse.Builder().result(Result.OK).build();
         } catch (Exception e) {

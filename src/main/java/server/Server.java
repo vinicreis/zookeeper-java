@@ -3,7 +3,6 @@ package server;
 import model.enums.Result;
 import model.exception.OutdatedEntryException;
 import model.repository.KeyValueRepository;
-import model.repository.TimestampRepository;
 import model.request.GetRequest;
 import model.request.PutRequest;
 import model.request.ReplicationRequest;
@@ -16,29 +15,45 @@ import static util.IOUtil.*;
 
 public interface Server {
     int getPort();
-    TimestampRepository getTimestampRepository();
     KeyValueRepository getKeyValueRepository();
     void start();
     void stop();
     PutResponse put(PutRequest request);
     ReplicationResponse replicate(ReplicationRequest request);
+
     default GetResponse get(GetRequest request) {
         GetResponse response;
-        KeyValueRepository.Entry entry = null;
 
         try {
-            entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
+            final KeyValueRepository.Entry entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
+
+            printf(
+                    "Cliente %s:%d GET key: %s ts: %d. ",
+                    request.getHost(),
+                    request.getPort(),
+                    request.getKey(),
+                    request.getTimestamp()
+            );
 
             if (entry == null) {
                 response = new GetResponse.Builder()
                         .result(Result.NOT_FOUND)
-                        .timestamp(getTimestampRepository().getCurrent())
                         .message(String.format("Valor com a chave %s não encontrado", request.getKey()))
                         .build();
             } else {
+                printfLn(
+                        "Cliente %s:%d GET key: %s ts: %d. Meu ts é %d, portanto devolvendo %s",
+                        request.getHost(),
+                        request.getPort(),
+                        request.getKey(),
+                        request.getTimestamp(),
+                        entry.getTimestamp(),
+                        entry.getValue()
+                );
+
                 response = new GetResponse.Builder()
-                        .value(entry.getValue())
                         .timestamp(entry.getTimestamp())
+                        .value(entry.getValue())
                         .result(Result.OK)
                         .build();
             }
@@ -47,7 +62,6 @@ public interface Server {
 
             response = new GetResponse.Builder()
                     .result(Result.TRY_OTHER)
-                    .timestamp(getTimestampRepository().getCurrent())
                     .message("Try other server or try later")
                     .exception(e)
                     .build();
@@ -57,20 +71,12 @@ public interface Server {
             response = new GetResponse.Builder().exception(e).build();
         }
 
-        printfLn(
-                "Cliente %s:%d GET key: %s ts: %d. Meu ts é %d, portanto devolvendo ",
-                request.getHost(),
-                request.getPort(),
-                request.getKey(),
-                request.getTimestamp(),
-                getTimestampRepository().getCurrent()
-        );
+        printf("Meu ts é %d, portanto devolvendo ", response.getTimestamp());
 
-        if(entry != null) {
-            print(entry.getValue());
-        } else {
-            print(response.getResult().toString());
-        }
+        if (response.getResult() == Result.OK)
+            printLn(response.getValue());
+        else
+            printLn(response.getResult().toString());
 
         return response;
     }
