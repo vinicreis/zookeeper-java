@@ -1,5 +1,8 @@
 package model.exception;
 
+/**
+ * Exception to be thrown in case a key with an outdated timestamp tries to be fetch.
+ */
 public class OutdatedEntryException extends Exception {
     private final String key;
     private final Long currentTimestamp;
@@ -9,10 +12,18 @@ public class OutdatedEntryException extends Exception {
         this.currentTimestamp = currentTimestamp;
     }
 
+    /**
+     * Get the requested key with error.
+     * @return the key fetched with an outdated timestamp.
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Gets the timestamp that the user has associated with this key.
+     * @return the integer timestamp value
+     */
     public Long getCurrentTimestamp() {
         return currentTimestamp;
     }
