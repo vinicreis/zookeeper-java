@@ -7,10 +7,31 @@ import java.util.stream.Collectors;
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.readWithDefault;
 
+/**
+ * Client interface that will read and fetch data from servers.
+ */
 public interface Client {
+    /**
+     * Starts the client execution.
+     */
     void start();
+
+    /**
+     * Stops the client execution.
+     */
     void stop();
+
+    /**
+     * Sends a request to input a value with the key.
+     * @param key key to input the value in
+     * @param value value to be inserted
+     */
     void put(String key, String value);
+
+    /**
+     * Send a request to server to read a value by key.
+     * @param key key to try to read a value from.
+     */
     void get(String key);
 
     static void main(String[] args) {

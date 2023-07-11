@@ -8,6 +8,9 @@ import model.enums.Operation;
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.read;
 
+/**
+ * Client worker thread read user input and run operations.
+ */
 public class WorkerThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private static final Log log = new ConsoleLog(TAG);

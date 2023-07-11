@@ -33,6 +33,14 @@ public class ClientImpl implements Client {
     private final HashMap<String, Long> keyTimestampMap;
     private final WorkerThread workerThread;
 
+    /**
+     * Default constructor.
+     * @param port Port to start the client
+     * @param serverHost Server host address to connect to.
+     * @param serverPorts Server port to connect to.
+     * @param debug Debug flag to enable debug messages.
+     * @throws UnknownHostException in case the hostname could not be resolved into an address.
+     */
     public ClientImpl(int port, String serverHost, List<Integer> serverPorts, boolean debug) throws UnknownHostException {
         this.host = InetAddress.getLocalHost().getHostAddress();
         this.port = port;
@@ -130,6 +138,11 @@ public class ClientImpl implements Client {
         }
     }
 
+    /**
+     * Get a random port among the input server ports read when the client was initialized.
+     * @return an integer value representing a server port.
+     * @throws IllegalArgumentException in case no server ports were provided when the client was initialized.
+     */
     private int getServerPort() throws IllegalArgumentException {
         if(serverPorts.size() == 1)
             return serverPorts.get(0);
