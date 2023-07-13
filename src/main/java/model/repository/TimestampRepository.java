@@ -48,7 +48,7 @@ public class TimestampRepository {
     /**
      * Get the current timestamp value registered.
      * @return a {@code Long} value with the current timestamp
-     * @throws IllegalStateException
+     * @throws IllegalStateException in case the method is called while the repository thread is not running.
      */
     public Long getCurrent() throws IllegalStateException {
         if(running) return current.get();
