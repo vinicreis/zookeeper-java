@@ -3,6 +3,10 @@ package model.request;
 import com.google.gson.annotations.SerializedName;
 import model.enums.Operation;
 
+/**
+ * Represents a PUT request made when a {@code Client} instance wants to insert
+ * a value in a determined key.
+ */
 public class PutRequest implements Request {
     @SerializedName("host") private final String host;
     @SerializedName("port") private final int port;
@@ -31,10 +35,18 @@ public class PutRequest implements Request {
         return port;
     }
 
+    /**
+     * Get the key which the client wants to add a value to.
+     * @return a {@code String} with the key
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Get the value which the client wants to add.
+     * @return a {@code String} with the value
+     */
     public String getValue() {
         return value;
     }

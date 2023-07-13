@@ -3,6 +3,9 @@ package model.response;
 import model.enums.Operation;
 import model.enums.Result;
 
+/**
+ * Represents a EXIT response made to when a {@code Node} leaves the connection with {@code Controller}
+ */
 public class ExitResponse extends Response {
     private ExitResponse(Result result, String message) {
         super(result, message);

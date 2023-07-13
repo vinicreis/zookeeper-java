@@ -3,6 +3,10 @@ package model.request;
 import com.google.gson.annotations.SerializedName;
 import model.enums.Operation;
 
+/**
+ * Represents a REPLICATE request made when the {@code Controller} instance
+ * wants replicate a key/value pair with determined timestamp on the {@code Node} instances.
+ */
 public class ReplicationRequest implements Request {
     @SerializedName("host") private final String host;
     @SerializedName("port") private final int port;
@@ -33,14 +37,26 @@ public class ReplicationRequest implements Request {
         return port;
     }
 
+    /**
+     * Get the key which the {@code Controller} wants to replicate a value to.
+     * @return a {@code String} with the key
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Get the value which the {@code Controller} wants to replicate.
+     * @return a {@code String} with the value
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Get the timestamp which the {@code Controller} wants to replicate a value to.
+     * @return a {@code Long} with the timestamp
+     */
     public Long getTimestamp() {
         return timestamp;
     }

@@ -3,12 +3,18 @@ package model.response;
 import model.enums.Operation;
 import model.enums.Result;
 
+/**
+ * Represents a JOIN response to when a {@code Node} instance to JOIN the Controller environment.
+ */
 public class JoinResponse extends Response {
 
     private JoinResponse(Result result, String message) {
         super(result, message);
     }
 
+    /**
+     * JOIN response builder class
+     */
     public static class Builder extends AbstractBuilder<JoinResponse> {
         @Override
         public JoinResponse build() {

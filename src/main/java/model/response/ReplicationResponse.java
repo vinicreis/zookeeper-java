@@ -1,30 +1,26 @@
 package model.response;
 
-import com.google.gson.annotations.SerializedName;
 import model.enums.Operation;
 import model.enums.Result;
 
+/**
+ * Represents a REPLICATE request made when a {@code Client} instance wants to insert
+ * a value in a determined key.
+ */
 public class ReplicationResponse extends Response {
-    @SerializedName("timestamp") private final Long timestamp;
 
-    private ReplicationResponse(Result result, String message, Long timestamp) {
+    private ReplicationResponse(Result result, String message) {
         super(result, message);
-
-        this.timestamp = timestamp;
     }
 
+    /**
+     * REPLICATE response builder class
+     */
     public static class Builder extends AbstractBuilder<ReplicationResponse> {
-        private Long timestamp = null;
-
-        public Builder timestamp(Long timestamp) {
-            this.timestamp = timestamp;
-
-            return this;
-        }
 
         @Override
         public ReplicationResponse build() {
-            return new ReplicationResponse(result, message, timestamp);
+            return new ReplicationResponse(result, message);
         }
     }
 

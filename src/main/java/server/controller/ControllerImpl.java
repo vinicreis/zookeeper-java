@@ -178,13 +178,11 @@ public class ControllerImpl implements Controller {
                 );
 
                 return new ReplicationResponse.Builder()
-                        .timestamp(timestampRepository.getCurrent())
                         .result(Result.OK)
                         .build();
             }
 
             return new ReplicationResponse.Builder()
-                    .timestamp(timestampRepository.getCurrent())
                     .result(Result.ERROR)
                     .message(
                             String.format(

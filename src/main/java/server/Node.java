@@ -10,8 +10,18 @@ import java.util.Arrays;
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.*;
 
+/**
+ * Generic interface that represents {@code Node} instance of a {@code Server}
+ */
 public interface Node extends Server {
+    /**
+     * Trigger the JOIN process from a {@code Node} to a {@code Controller}
+     */
     void join();
+
+    /**
+     * Trigger the EXIT process from a {@code Node} to a {@code Controller}
+     */
     void exit();
 
     static void main(String[] args) {

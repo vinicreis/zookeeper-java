@@ -13,14 +13,52 @@ import model.response.ReplicationResponse;
 import static util.AssertionUtils.handleException;
 import static util.IOUtil.*;
 
+/**
+ * Server generic interface used to represent a server instance.
+ */
 public interface Server {
+    /**
+     * Gets the server port.
+     * @return a {@code int} value representing the server port
+     */
     int getPort();
+
+    /**
+     * Gets the instance of thw key/value pair used by the server to save the values.
+     * @return an {@code KeyValueRepository} instance
+     */
     KeyValueRepository getKeyValueRepository();
+
+    /**
+     * Starts the server execution to listen to requests.
+     */
     void start();
+
+    /**
+     * Stops the server instance.
+     */
     void stop();
+
+    /**
+     * Handles the PUT request.
+     * @param request a {@code PutRequest} instance received
+     * @return a {@code PutResponse} instance
+     */
     PutResponse put(PutRequest request);
+
+    /**
+     * Handles the REPLICATE request.
+     * @param request a {@code ReplicationRequest} instance received
+     * @return a {@code ReplicationResponse} instance
+     */
     ReplicationResponse replicate(ReplicationRequest request);
 
+    /**
+     * Default implementation that handles a GET request, since both {@code Controller} and
+     * {@code Node} instances handles the GET request the same way.
+     * @param request a {@code GetRequest} instance
+     * @return a {@code GetResponse} instance
+     */
     default GetResponse get(GetRequest request) {
         GetResponse response;
 
