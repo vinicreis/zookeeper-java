@@ -12,6 +12,10 @@ import java.net.Socket;
 
 import static util.AssertionUtils.handleException;
 
+/**
+ * Worker thread to execute any dispatched operation by {@code DispatcherThread}.
+ * @see DispatcherThread
+ */
 public class WorkerThread extends Thread {
     private static final String TAG = "WorkerThread";
     private final Server server;

@@ -14,6 +14,10 @@ import java.net.SocketException;
 
 import static util.AssertionUtils.handleException;
 
+/**
+ * Thread to keep listening and dispatch workers to process Controller's operations.
+ * @see WorkerThread
+ */
 public class DispatcherThread extends Thread {
     private static final String TAG = "DispatcherThread";
     private final Log log = new ConsoleLog(TAG);

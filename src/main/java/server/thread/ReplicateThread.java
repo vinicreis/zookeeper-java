@@ -12,6 +12,9 @@ import java.io.IOException;
 import static util.AssertionUtils.handleException;
 import static util.NetworkUtil.doRequest;
 
+/**
+ * Thread to send a REPLICATE request to nodes asynchronously.
+ */
 public class ReplicateThread extends Thread {
     private static final String TAG = "ReplicateThread";
     private static final Log log = new ConsoleLog(TAG);
