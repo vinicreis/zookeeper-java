@@ -68,7 +68,7 @@ public class ClientImpl implements Client {
             final int serverPort = getServerPort();
             final Long timestamp;
 
-            timestamp = keyTimestampMap.getOrDefault(key, 0L);
+            timestamp = keyTimestampMap.getOrDefault(key, null);
 
             final GetRequest request = new GetRequest(host, port, key, timestamp);
             final GetResponse response = doRequest(

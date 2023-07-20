@@ -8,7 +8,7 @@ import model.enums.Result;
  * Generic abstract class to represent the response to any {@code Request} type.
  */
 public abstract class Response {
-    @SerializedName("response") protected Result result;
+    @SerializedName("result") protected Result result;
     @SerializedName("message") protected String message;
 
     protected Response(Result result, String message) {

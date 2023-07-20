@@ -105,10 +105,9 @@ public class KeyValueRepository {
     public Entry find(String key, Long timestamp) throws OutdatedEntryException {
         final Entry result = data.getOrDefault(key, null);
 
-        if(result == null) return null;
-        if(timestamp > 0 && result.getTimestamp() < timestamp)
+        if(timestamp != null && timestamp > 0 && result != null && result.getTimestamp() < timestamp)
             throw new OutdatedEntryException(key, result.getTimestamp());
 
-        return data.get(key);
+        return result;
     }
 }
