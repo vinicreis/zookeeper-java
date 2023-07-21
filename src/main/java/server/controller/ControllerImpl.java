@@ -77,10 +77,12 @@ public class ControllerImpl implements Controller {
     public JoinResponse join(JoinRequest request) {
         try {
             log.d(String.format("Joining node %s:%d", request.getHost(), request.getPort()));
-            if (nodes.stream().anyMatch((node) -> node.getHost().equals(request.getHost()) && node.getPort() == request.getPort())) {
+
+            if (hasNode(new Node(request))) {
                 log.d(String.format("Node %s:%d already joined!", request.getHost(), request.getPort()));
 
                 return new JoinResponse.Builder()
+                        .result(Result.ERROR)
                         .message(String.format(
                                 "Node %s:%d already joined!",
                                 request.getHost(),
@@ -205,7 +207,7 @@ public class ControllerImpl implements Controller {
         try {
             final Node node = new Node(request);
 
-            if (!nodes.contains(node))
+            if (!hasNode(node))
                 return new ExitResponse.Builder()
                         .result(Result.ERROR)
                         .message("Servidor %s:%d não conectado!")
@@ -225,5 +227,9 @@ public class ControllerImpl implements Controller {
                     .exception(e)
                     .build();
         }
+    }
+
+    private boolean hasNode(Node node) {
+        return nodes.contains(node);
     }
 }

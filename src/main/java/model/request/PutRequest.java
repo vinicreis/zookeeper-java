@@ -7,15 +7,13 @@ import model.enums.Operation;
  * Represents a PUT request made when a {@code Client} instance wants to insert
  * a value in a determined key.
  */
-public class PutRequest implements Request {
-    @SerializedName("host") private final String host;
-    @SerializedName("port") private final int port;
+public class PutRequest extends Request {
     @SerializedName("key") private final String key;
     @SerializedName("value") private final String value;
 
     public PutRequest(String host, int port, String key, String value) {
-        this.host = host;
-        this.port = port;
+        super(host, port);
+
         this.key = key;
         this.value = value;
     }

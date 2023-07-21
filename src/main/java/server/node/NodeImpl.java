@@ -75,6 +75,8 @@ public class NodeImpl implements Node {
                 throw new RuntimeException(String.format("Failed to join on controller server: %s", response.getMessage()));
             }
 
+            // TODO: Save controller info to validate REPLICATE requests
+
             log.d("Node successfully joined!");
         } catch (Exception e) {
             handleException(TAG, "Failed to process JOIN operation", e);

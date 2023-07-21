@@ -6,15 +6,13 @@ import model.enums.Operation;
 /**
  * Represents a GET request made when a {@code Client} instance wants to get a value by key.
  */
-public class GetRequest implements Request {
-    @SerializedName("host") private final String host;
-    @SerializedName("port") private final int port;
+public class GetRequest extends Request {
     @SerializedName("key") private final String key;
     @SerializedName("timestamp") private final Long timestamp;
 
     public GetRequest(String host, int port, String key, Long timestamp) {
-        this.host = host;
-        this.port = port;
+        super(host, port);
+
         this.key = key;
         this.timestamp = timestamp;
     }

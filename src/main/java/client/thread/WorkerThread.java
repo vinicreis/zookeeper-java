@@ -23,7 +23,7 @@ public class WorkerThread extends Thread {
 
     @Override
     public void run() {
-        log.d("Starting dispatcher thread...");
+        log.d("Starting worker thread...");
 
         while (running) {
             try {

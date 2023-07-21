@@ -7,16 +7,14 @@ import model.enums.Operation;
  * Represents a REPLICATE request made when the {@code Controller} instance
  * wants replicate a key/value pair with determined timestamp on the {@code Node} instances.
  */
-public class ReplicationRequest implements Request {
-    @SerializedName("host") private final String host;
-    @SerializedName("port") private final int port;
+public class ReplicationRequest extends Request {
     @SerializedName("key") private final String key;
     @SerializedName("value") private final String value;
     @SerializedName("timestamp") private final Long timestamp;
 
     public ReplicationRequest(String host, int port, String key, String value, Long timestamp) {
-        this.host = host;
-        this.port = port;
+        super(host, port);
+
         this.key = key;
         this.value = value;
         this.timestamp = timestamp;
