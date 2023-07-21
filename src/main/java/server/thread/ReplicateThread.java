@@ -59,4 +59,8 @@ public class ReplicateThread extends Thread {
     public Result getResult() {
         return result;
     }
+
+    public Controller.Node getNode() {
+        return node;
+    }
 }

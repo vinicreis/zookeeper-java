@@ -153,20 +153,27 @@ public class ControllerImpl implements Controller {
     public ReplicationResponse replicate(ReplicationRequest request) {
         try {
             final List<Node> nodesWithError = new ArrayList<>(nodes.size());
+            final List<ReplicateThread> threads = new ArrayList<>(nodes.size());
 
+            // Start all threads to join them later to process request asynchronously
             for (final Node node : nodes) {
                 final ReplicateThread replicateThread = new ReplicateThread(node, request);
 
+                threads.add(replicateThread);
                 log.d(String.format("Starting replication to node %s...", node.toString()));
 
                 replicateThread.start();
-                replicateThread.join();
+            }
 
-                if (replicateThread.getResult() != Result.OK) nodesWithError.add(node);
+            // Wait for each result at once, but at least they are already being processed
+            for (final ReplicateThread thread : threads) {
+                thread.join();
+
+                if (thread.getResult() != Result.OK) nodesWithError.add(thread.getNode());
                 log.d(String.format(
                         "Replication to node %s got result: %s",
-                        node,
-                        replicateThread.getResult().toString())
+                        thread.getNode(),
+                        thread.getResult().toString())
                 );
             }
 
