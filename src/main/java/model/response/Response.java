@@ -20,6 +20,7 @@ public abstract class Response {
      * Abstract builder class that builds a response of type {@code T}
      * @param <T> type of response created by the class
      */
+    @SuppressWarnings("unchecked")
     public abstract static class AbstractBuilder<T> {
         protected Result result = Result.OK;
         protected String message = null;
@@ -56,12 +57,11 @@ public abstract class Response {
 
         /**
          * Adds an {@code Exception} message and result to the response
-         * @param e expection to read values from
+         * @param e exception to read values from
          * @return the builder instance of type {@code B}
          * @param <B> Builder type to returned and resume the building
          */
         public <B extends AbstractBuilder<T>> B exception(Exception e) {
-            // TODO: Do something with the exception or remove this method
             this.result = Result.EXCEPTION;
             this.message = "Falha ao processar operação";
 
