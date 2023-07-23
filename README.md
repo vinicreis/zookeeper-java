@@ -3,42 +3,37 @@
 Este projeto é uma implementação simples do sistema ZooKeeper em Java para a disciplina de Sistemas Distribuídos
 na UFABC no quadrimestre 2023.2.
 
-## Como buildar o projeto
+## Como compilar e empacotar o projeto
 
-## Como utilizar
+A construção dos executáveis do projeto devem ser criados utilizando o Maven.
 
-- Compilar os arquivos do projeto utilizando Java 8
-- Executar uma instância do servidor líder na classe `server.Controller`
+Inicie o terminal na pasta raiz do projeto, então execute o comando abaixo pelo terminal
+ou utilizando a IDE:
+
+```bash
+mvn clean package
+```
+
+Feito isso, os arquivos executáveis do tipo .jar devem ser criados na pasta `target`.
+Cada arquivo corresponde a uma instância do projeto
+
+## Como executar
+
+- Compilar os módulos utilizando o Maven
+- Executar uma instância do servidor controlador através pacote `controller.jar`
   - Deve-se informar os dados necessários de inicialização
-- Executar quantas instâncias se desejar de servidores auxiliares na classe `server.Node`
+- Executar quantas instâncias se desejar de servidores nós através do pacote `node.jar`
     - Deve-se informar os dados necessários de inicialização
-- Executar quantas instâncias se desejar de clientes na classe `client.Client`
+- Executar quantas instâncias se desejar de clientes através do pacote `client.jar`
 - Agora, podemos executar uma das operações que são
     - Get: solicita um valor aos servidores de acordo com alguma chave
     - Put: insere um valor nos servidores conforme a chave
 
-## Como compilar e executar utilizando `javac`
+**Observação:** para executar os pacotes utilize o comando abaixo:
 
-A fim de não haver dependência nas IDEs para execução do projeto, segue um passo a passo 
-de como compilar e executar o projeto diretamente pelo Terminal:
-
-- Abrir o terminal na pasta `src`
-- Executar os comandos
-    - Para executar o servidor líder
-  ```bash
-  javac -cp . server/Controller.java
-  java -cp . server.Controller
-  ```
-    - Para executar os servidores auxiliares
-  ```bash
-  javac -cp . server/Node.java
-  java -cp . server.Node
-  ```
-    - Para executar os clientes
-  ```bash
-  javac -cp . client/Client.java
-  java -cp . client.Client
-  ```
+```bash
+java -jar ./target/<instancia>.jar
+```
 
 ## Próximos passos
 
@@ -47,7 +42,6 @@ de como compilar e executar o projeto diretamente pelo Terminal:
 - [X] Sincronizar os timestamps entre todas as instâncias
 - [X] Abstrair a criação da requisição entre Sockets
 - [X] Notificar o líder quando um servidor auxiliar se desconectar
-- [ ] Verificar todos os inputs utilizando `assert` ou `check`
-- [ ] Revisar documentação para entrega
-- [ ] Gravar vídeo
-- [ ] Fazer relatório
+- [X] Revisar documentação para entrega
+- [X] Gravar vídeo
+- [X] Fazer relatório
