@@ -3,6 +3,8 @@
 Este projeto é uma implementação simples do sistema ZooKeeper em Java para a disciplina de Sistemas Distribuídos
 na UFABC no quadrimestre 2023.2.
 
+## Como buildar o projeto
+
 ## Como utilizar
 
 - Compilar os arquivos do projeto utilizando Java 8
