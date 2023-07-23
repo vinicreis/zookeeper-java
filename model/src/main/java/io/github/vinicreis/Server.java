@@ -63,8 +63,6 @@ public interface Server {
         GetResponse response;
 
         try {
-            final KeyValueRepository.Entry entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
-
             printf(
                     "Cliente %s:%d GET key: %s ts: %d. ",
                     request.getHost(),
@@ -72,6 +70,8 @@ public interface Server {
                     request.getKey(),
                     request.getTimestamp()
             );
+
+            final KeyValueRepository.Entry entry = getKeyValueRepository().find(request.getKey(), request.getTimestamp());
 
             if (entry == null) {
                 response = new GetResponse.Builder()
