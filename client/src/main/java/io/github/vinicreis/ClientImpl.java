@@ -42,7 +42,7 @@ public class ClientImpl implements Client {
      * @throws UnknownHostException in case the hostname could not be resolved into an address.
      */
     public ClientImpl(int port, String serverHost, List<Integer> serverPorts, boolean debug) throws UnknownHostException {
-        this.host = InetAddress.getLocalHost().getHostAddress();
+        this.host = InetAddress.getLocalHost().getCanonicalHostName();
         this.port = port;
         this.serverHost = serverHost;
         this.serverPorts = serverPorts;
@@ -82,7 +82,7 @@ public class ClientImpl implements Client {
 
             switch (response.getResult()) {
                 case OK:
-                case TRY_OTHER:
+                case TRY_OTHER_SERVER_OR_LATER:
                     printfLn(
                             "GET_%s key: %s value: %s realizada no servidor %s:%d, meu timestamp %d e do servidor %d",
                             response.getResult(),

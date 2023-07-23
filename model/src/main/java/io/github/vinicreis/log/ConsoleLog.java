@@ -18,6 +18,10 @@ public class ConsoleLog implements Log {
         d("Debug mode enabled!");
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
     @Override
     public void e(String msg) {
         logger.log(Level.SEVERE, msg);

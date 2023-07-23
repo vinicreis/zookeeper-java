@@ -8,6 +8,12 @@ public interface Log {
     void setDebug(boolean enable);
 
     /**
+     * Indicates if debug is enabled on this logger instance.
+     * @return true if debug is enabled, false otherwise.
+     */
+    boolean isDebug();
+
+    /**
      * Insert a log with an error message.
      * @param msg message to inserted
      */

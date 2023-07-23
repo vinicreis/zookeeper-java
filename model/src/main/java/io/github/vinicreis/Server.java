@@ -96,12 +96,10 @@ public interface Server {
                         .build();
             }
         } catch (OutdatedEntryException e) {
-            handleException("Server", String.format("Data with key %s is outdated", request.getKey()), e);
-
             response = new GetResponse.Builder()
-                    .result(Result.TRY_OTHER)
-                    .message("Try other server or try later")
-                    .exception(e)
+                    .timestamp(e.getCurrentTimestamp())
+                    .result(Result.TRY_OTHER_SERVER_OR_LATER)
+                    .message("Please, try again later or try other server")
                     .build();
         } catch (Exception e) {
             handleException("Server", "Failed to process GET operation", e);

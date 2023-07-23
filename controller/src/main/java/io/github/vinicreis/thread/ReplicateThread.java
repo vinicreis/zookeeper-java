@@ -21,10 +21,12 @@ public class ReplicateThread extends Thread {
     private volatile Result result;
     private final Controller.Node node;
     private final ReplicationRequest request;
+    private final boolean debug;
 
-    public ReplicateThread(Controller.Node node, ReplicationRequest request) {
+    public ReplicateThread(Controller.Node node, ReplicationRequest request, boolean debug) {
         this.request = request;
         this.node = node;
+        this.debug = debug;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class ReplicateThread extends Thread {
                     node.getHost(),
                     node.getPort(),
                     request,
-                    ReplicationResponse.class
+                    ReplicationResponse.class,
+                    debug
             );
 
             result = response.getResult();

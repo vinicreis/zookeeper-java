@@ -114,7 +114,7 @@ public class ControllerImpl implements Controller {
                     request.getValue()
             );
 
-            final Long timestamp = keyValueRepository.insert(request.getKey(), request.getValue());
+            Long timestamp = keyValueRepository.insert(request.getKey(), request.getValue());
             final ReplicationResponse replicationResponse = replicate(
                     new ReplicationRequest(
                             request.getHost(),
@@ -125,14 +125,27 @@ public class ControllerImpl implements Controller {
                     )
             );
 
-            if (replicationResponse.getResult() == Result.OK)
+            /*
+             * The code below is used to simulate the TRY_OTHER_SERVER_OR_LATER scenario.
+             * If the client host is localhost ("host.docker.internal:10092") and the port is 10092,
+             * along with the key "testing" and the value "tosol", the timestamp returned should be greater
+             * than the saved one. So, when the same client tries to get the value with
+             * the key "testing", the timestamp sent would be greater and the server
+             * should return the TRY_OTHER_SERVER result.
+             */
+            if (request.getHost().equals("host.docker.internal") && request.getPort() == 10092
+                    && request.getKey().equals("testing") && request.getValue().equals("tosol")){
+                timestamp += 1000L;
+            }
+
+            if (replicationResponse.getResult() == Result.OK) {
                 return new PutResponse.Builder()
-                        .timestamp(timestampRepository.getCurrent())
+                        .timestamp(timestamp)
                         .result(Result.OK)
                         .build();
+            }
 
             return new PutResponse.Builder()
-                    .timestamp(timestampRepository.getCurrent())
                     .result(replicationResponse.getResult())
                     .message(
                             String.format(
@@ -157,7 +170,7 @@ public class ControllerImpl implements Controller {
 
             // Start all threads to join them later to process request asynchronously
             for (final Node node : nodes) {
-                final ReplicateThread replicateThread = new ReplicateThread(node, request);
+                final ReplicateThread replicateThread = new ReplicateThread(node, request, log.isDebug());
 
                 threads.add(replicateThread);
                 log.d(String.format("Starting replication to node %s...", node.toString()));

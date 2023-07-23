@@ -15,7 +15,7 @@ public enum Result {
     /**
      * Indicates that the client should make the request to other server to fetch an updated value from a key.
      */
-    TRY_OTHER,
+    TRY_OTHER_SERVER_OR_LATER,
     /**
      * Indicates that the request key was not found on the server.
      */

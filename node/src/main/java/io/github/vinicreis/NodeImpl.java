@@ -67,7 +67,7 @@ public class NodeImpl implements Node {
     @Override
     public void join() {
         try {
-            final JoinRequest request = new JoinRequest(InetAddress.getLocalHost().getHostAddress(), port);
+            final JoinRequest request = new JoinRequest(InetAddress.getLocalHost().getHostName(), port);
             final JoinResponse response = doRequest(controllerHost, controllerPort, request, JoinResponse.class);
 
             if (response.getResult() != Result.OK) {
@@ -94,7 +94,7 @@ public class NodeImpl implements Node {
             );
 
             final PutRequest controllerRequest = new PutRequest(
-                    InetAddress.getLocalHost().getHostAddress(),
+                    InetAddress.getLocalHost().getHostName(),
                     port,
                     request.getKey(),
                     request.getValue()
@@ -150,7 +150,7 @@ public class NodeImpl implements Node {
     @Override
     public void exit() {
         try {
-            final ExitRequest request = new ExitRequest(InetAddress.getLocalHost().getHostAddress(), port);
+            final ExitRequest request = new ExitRequest(InetAddress.getLocalHost().getHostName(), port);
 
             log.d("Leaving controller...");
 
