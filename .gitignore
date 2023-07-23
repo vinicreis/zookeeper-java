@@ -31,3 +31,6 @@ bin/
 ### Compiled Java classes ###
 **/*.class
 /target
+
+### Compiled documentation ###
+**/*.pdf
